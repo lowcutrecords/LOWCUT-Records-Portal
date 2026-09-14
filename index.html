@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>LOWCUT// Artist Portal</title>
+<style>
+:root{--black:#050505;--paper:#f1efe9;--white:#fff;--ink:#111;--muted:#77736b;--line:#c8c6bf;--darkline:#292929}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--black);color:#fff;font-family:Arial,Helvetica,sans-serif}body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.07;background-image:radial-gradient(#fff .7px,transparent .7px);background-size:5px 5px;mix-blend-mode:screen}
+button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Courier New",monospace;letter-spacing:1.4px}.topbar{height:72px;border-bottom:1px solid var(--darkline);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;background:rgba(5,5,5,.95);backdrop-filter:blur(10px);z-index:50}.brand{font-weight:1000;font-size:23px;letter-spacing:-1px}.top-actions{display:flex;align-items:center;gap:10px}.lang-switch{display:flex;border:1px solid #333}.lang-btn,.logout-btn{border:0;background:transparent;color:#aaa;padding:8px 11px;font-family:"Courier New",monospace;font-size:10px;font-weight:900;letter-spacing:1px}.lang-btn.active{background:#fff;color:#000}.logout-btn{border:1px solid #444;color:#fff;display:none}.logout-btn:hover{background:#fff;color:#000}
+.login-wrap{min-height:calc(100vh - 72px);display:grid;grid-template-columns:1.05fr .95fr}.login-copy{padding:clamp(36px,7vw,100px);display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--darkline)}.eyebrow,.index{font-family:"Courier New",monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}.login-copy h1{font-size:clamp(56px,8vw,122px);line-height:.82;letter-spacing:-.065em;margin:16px 0 24px}.login-copy p{max-width:650px;color:#bdbdb8;line-height:1.6;font-size:16px}.login-panel{background:var(--paper);color:var(--ink);display:grid;place-items:center;padding:30px}.login-card{width:min(520px,100%);background:#fff;border:1px solid #bbb;padding:clamp(24px,4vw,42px)}.login-card img{width:170px;display:block;margin:0 0 42px}.login-card h2{font-size:38px;letter-spacing:-.04em;margin:0 0 8px}.login-card>p{color:#666;line-height:1.5;margin:0 0 28px}.field{display:grid;gap:7px;margin-bottom:16px}.field label{font-family:"Courier New",monospace;font-size:10px;font-weight:700;letter-spacing:1.2px}.field input{width:100%;border:1px solid #111;background:#fff;color:#111;padding:14px 12px;border-radius:0;outline:none}.field input:focus{background:#111;color:#fff}.primary{width:100%;border:1px solid #111;background:#111;color:#fff;padding:16px;font-size:12px;font-weight:1000;letter-spacing:1.5px}.primary:disabled{opacity:.45}.error{min-height:18px;color:#8f0000;font-family:"Courier New",monospace;font-size:11px;line-height:1.4;margin-top:12px}
+.dashboard{max-width:1500px;margin:auto;padding:44px clamp(18px,5vw,68px) 80px}.dash-head{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;padding-bottom:34px;border-bottom:1px solid #2b2b2b}.dash-head h1{font-size:clamp(50px,7vw,100px);line-height:.86;letter-spacing:-.06em;margin:10px 0 18px}.dash-head p{color:#b9b9b3;line-height:1.6;max-width:760px}.identity-box{border:1px solid #333;padding:22px;align-self:end}.identity-box small{font-family:"Courier New",monospace;letter-spacing:1.5px;color:#888}.identity-box strong{display:block;font-size:28px;margin:9px 0 4px}.role-badge{display:inline-flex;border:1px solid #555;padding:6px 8px;margin-top:8px;font-family:"Courier New",monospace;font-size:10px;letter-spacing:1.2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-left:1px solid #333;margin:34px 0}.stat{border-right:1px solid #333;border-top:1px solid #333;border-bottom:1px solid #333;padding:22px}.stat strong{font-size:42px;display:block}.stat span{font-family:"Courier New",monospace;font-size:10px;letter-spacing:1.3px;color:#aaa}.portal-section{margin-top:48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:18px}.section-head h2{font-size:clamp(38px,5vw,68px);line-height:.9;letter-spacing:-.05em;margin:7px 0 0}.section-note{max-width:460px;color:#999;font-size:13px;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--paper);color:var(--ink);border:1px solid #bdbab2;min-height:230px;padding:22px;display:flex;flex-direction:column}.card-top{display:flex;justify-content:space-between;gap:10px;align-items:start}.card .tag{font-family:"Courier New",monospace;font-size:10px;letter-spacing:1.2px;border:1px solid #111;padding:6px 7px}.card h3{font-size:30px;letter-spacing:-.035em;margin:28px 0 6px}.card p{font-size:13px;line-height:1.5;color:#646159;margin:0 0 18px}.card-actions{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}.card-actions a,.card-actions span{display:inline-flex;text-decoration:none;border:1px solid #111;color:#111;padding:10px 11px;font-family:"Courier New",monospace;font-size:10px;font-weight:700;letter-spacing:1px}.card-actions a:hover{background:#111;color:#fff}.card-actions .disabled{opacity:.45}.empty{border:1px dashed #444;padding:28px;color:#999;font-family:"Courier New",monospace;font-size:12px;line-height:1.6}.loading{min-height:55vh;display:grid;place-items:center;text-align:center}.loading strong{font-size:34px}.admin-note{border:1px solid #444;background:#0d0d0d;padding:18px;margin-top:34px;color:#aaa;font-size:12px;line-height:1.55}.admin-note b{color:#fff}.footer{border-top:1px solid #242424;margin-top:70px;padding-top:24px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:#777;font-family:"Courier New",monospace;font-size:10px}
+@media(max-width:950px){.login-wrap{grid-template-columns:1fr}.login-copy{border-right:0;border-bottom:1px solid var(--darkline);min-height:48vh}.dash-head{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr 1fr}.topbar{padding:0 16px}.brand{font-size:18px}}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.stat{border-left:0}.topbar{height:auto;min-height:68px;padding:10px 14px}.top-actions{gap:6px}.dashboard{padding-top:28px}.section-head{align-items:start;flex-direction:column}.login-copy{padding:44px 22px}.login-panel{padding:18px}.login-card{padding:24px 18px}}
+
+/* V5 — login security + logout confirmation */
+.recaptcha-wrap{border:1px solid #111;background:#f4f2ed;padding:14px;margin:4px 0 16px;overflow:hidden}.recaptcha-wrap .g-recaptcha{transform-origin:0 0}.security-note{font-family:"Courier New",monospace;font-size:9px;line-height:1.5;color:#777;margin:-6px 0 16px}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;z-index:500}.modal-card{width:min(470px,100%);background:var(--paper);color:var(--ink);border:1px solid #fff;padding:28px}.modal-card .index{color:#666}.modal-card h3{font-size:34px;letter-spacing:-.04em;margin:12px 0 10px}.modal-card p{color:#666;line-height:1.55;margin:0 0 24px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-actions button{padding:14px 12px;border:1px solid #111;font-family:"Courier New",monospace;font-size:10px;font-weight:900;letter-spacing:1px}.modal-cancel{background:#fff;color:#111}.modal-confirm{background:#111;color:#fff}.login-security-status{min-height:14px;font-family:"Courier New",monospace;font-size:9px;color:#777;margin-top:10px}.login-security-status.ok{color:#275c2a}.login-security-status.warn{color:#8f0000}@media(max-width:380px){.recaptcha-wrap .g-recaptcha{transform:scale(.88);width:345px}}
+</style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">LOWCUT// ARTIST PORTAL</div>
+  <div class="top-actions">
+    <div class="lang-switch"><button class="lang-btn active" data-lang="es">ES</button><button class="lang-btn" data-lang="en">EN</button></div>
+    <button id="logoutBtn" class="logout-btn" data-i18n="logout">CERRAR SESIÓN</button>
+  </div>
+</header>
+
+<section id="loginView" class="login-wrap">
+  <div class="login-copy">
+    <div class="eyebrow" data-i18n="privateAccess">ACCESO PRIVADO / LOWCUT// RECORDS</div>
+    <h1 data-i18n-html="loginHero">TU MÚSICA.<br>TU ESPACIO.</h1>
+    <p data-i18n="loginIntro">Portal privado para artistas de LOWCUT//. Iniciá sesión con la cuenta entregada por el sello para consultar lanzamientos, pre-saves y contratos asociados a tu perfil.</p>
+  </div>
+  <div class="login-panel">
+    <form id="loginForm" class="login-card">
+      <img src="assets/lowcut-logo.png" alt="LOWCUT Records">
+      <div class="index">AUTH / 01</div>
+      <h2 data-i18n="access">INICIAR SESIÓN</h2>
+      <p data-i18n="credentials">Usá las credenciales proporcionadas por LOWCUT// Records.</p>
+      <div class="field"><label data-i18n="email">CORREO ELECTRÓNICO</label><input id="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label data-i18n="password">CONTRASEÑA</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <div class="recaptcha-wrap">
+        <div class="g-recaptcha" data-sitekey="6LduKbotAAAAANSgY-j8XDh4obFwt6ssvjHSp3G5"></div>
+      </div>
+      <div class="security-note" data-i18n="securityNote">Por seguridad, LOWCUT// puede registrar el acceso, dispositivo y ubicación aproximada por IP.</div>
+      <button id="loginBtn" class="primary" type="submit" data-i18n="enter">ENTRAR AL PORTAL</button>
+      <div id="securityStatus" class="login-security-status"></div>
+      <div id="loginError" class="error"></div><div id="debugBox" class="error" style="white-space:pre-wrap;font-family:monospace;font-size:12px"></div>
+    </form>
+  </div>
+</section>
+
+<section id="loadingView" class="loading hidden"><div><strong>LOWCUT//</strong><p class="mono" data-i18n="loading">CARGANDO PORTAL...</p></div></section>
+
+<main id="dashboardView" class="dashboard hidden">
+  <section class="dash-head">
+    <div>
+      <div class="eyebrow" data-i18n="dashboardEyebrow">PORTAL PRIVADO / PANEL</div>
+      <h1 id="welcomeTitle">HOLA.</h1>
+      <p id="welcomeText"></p>
+    </div>
+    <div class="identity-box">
+      <small data-i18n="session">SESIÓN ACTIVA</small>
+      <strong id="identityName">—</strong>
+      <div id="identityEmail" class="mono" style="font-size:11px;color:#888;word-break:break-all">—</div>
+      <span id="roleBadge" class="role-badge">—</span>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><strong id="releaseCount">0</strong><span data-i18n="statReleases">LANZAMIENTOS</span></div>
+    <div class="stat"><strong id="contractCount">0</strong><span data-i18n="statContracts">CONTRATOS</span></div>
+    <div class="stat"><strong id="presaveCount">0</strong><span data-i18n="statPresaves">PRE-SAVES ACTIVOS</span></div>
+  </section>
+
+  <div id="adminNote" class="admin-note hidden"><b>ADMIN MODE</b> — <span data-i18n="adminNote">Tu cuenta tiene acceso administrativo. Este panel muestra todos los documentos disponibles en Firestore.</span></div>
+
+  <section class="portal-section">
+    <div class="section-head"><div><div class="index">01 / RELEASES</div><h2 data-i18n="releases">LANZAMIENTOS</h2></div><p class="section-note" data-i18n="releasesNote">Fechas, estado y enlaces asociados a tus lanzamientos.</p></div>
+    <div id="releasesGrid" class="grid"></div>
+  </section>
+
+  <section class="portal-section">
+    <div class="section-head"><div><div class="index">02 / CONTRACTS</div><h2 data-i18n="contracts">CONTRATOS</h2></div><p class="section-note" data-i18n="contractsNote">Contratos registrados por LOWCUT// Records para tu perfil.</p></div>
+    <div id="contractsGrid" class="grid"></div>
+  </section>
+
+  <div class="footer"><span>LOWCUT// RECORDS · ARGENTINA</span><span data-i18n="privatePortal">PRIVATE ARTIST PORTAL</span></div>
+</main>
+
+
+<div id="logoutModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+  <div class="modal-card">
+    <div class="index">AUTH / LOGOUT</div>
+    <h3 id="logoutTitle" data-i18n="logoutTitle">¿CERRAR SESIÓN?</h3>
+    <p data-i18n="logoutText">Vas a salir del LOWCUT// Artist Portal. Para volver a entrar vas a necesitar tus credenciales.</p>
+    <div class="modal-actions">
+      <button id="cancelLogout" class="modal-cancel" type="button" data-i18n="cancel">CANCELAR</button>
+      <button id="confirmLogout" class="modal-confirm" type="button" data-i18n="confirmLogout">SÍ, CERRAR SESIÓN</button>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { getFirestore, doc, getDoc, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDcLpCPu-3eNKtd3j8w51RdiqCvP6L8WlU',
+  authDomain: 'lowcut-artist-portal.firebaseapp.com',
+  projectId: 'lowcut-artist-portal',
+  storageBucket: 'lowcut-artist-portal.firebasestorage.app',
+  messagingSenderId: '483516737605',
+  appId: '1:483516737605:web:0dc3012d3e1db7db39db2c',
+  measurementId: 'G-Q834JF7TQX'
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = (id)=>document.getElementById(id);
+const loginView=$('loginView'), loadingView=$('loadingView'), dashboardView=$('dashboardView');
+const loginForm=$('loginForm'), loginBtn=$('loginBtn'), loginError=$('loginError'), logoutBtn=$('logoutBtn');
+const securityStatus=$('securityStatus');
+const logoutModal=$('logoutModal'), cancelLogout=$('cancelLogout'), confirmLogout=$('confirmLogout');
+let currentLang='es';
+let currentProfile=null;
+let cachedReleases=[];
+let cachedContracts=[];
+
+const i18n={
+  es:{privateAccess:'ACCESO PRIVADO / LOWCUT// RECORDS',loginHero:'TU MÚSICA.<br>TU ESPACIO.',loginIntro:'Portal privado para artistas de LOWCUT//. Iniciá sesión con la cuenta entregada por el sello para consultar lanzamientos, pre-saves y contratos asociados a tu perfil.',access:'INICIAR SESIÓN',credentials:'Usá las credenciales proporcionadas por LOWCUT// Records.',email:'CORREO ELECTRÓNICO',password:'CONTRASEÑA',enter:'ENTRAR AL PORTAL',logout:'CERRAR SESIÓN',loading:'CARGANDO PORTAL...',dashboardEyebrow:'PORTAL PRIVADO / PANEL',session:'SESIÓN ACTIVA',statReleases:'LANZAMIENTOS',statContracts:'CONTRATOS',statPresaves:'PRE-SAVES ACTIVOS',adminNote:'Tu cuenta tiene acceso administrativo. Este panel muestra todos los documentos disponibles en Firestore.',releases:'LANZAMIENTOS',releasesNote:'Fechas, estado y enlaces asociados a tus lanzamientos.',contracts:'CONTRATOS',contractsNote:'Contratos registrados por LOWCUT// Records para tu perfil.',privatePortal:'PORTAL PRIVADO DE ARTISTAS',hello:'HOLA',adminWelcome:'Estás usando una cuenta administradora. Podés consultar todos los lanzamientos y contratos registrados en el portal.',artistWelcome:'Acá vas a encontrar la información que LOWCUT// Records tiene asociada a tu perfil.',presave:'PRE-SAVE ↗',noPresave:'SIN PRE-SAVE',releaseDate:'FECHA',signed:'FIRMADO',contract:'CONTRATO',openContract:'VER CONTRATO ↗',noFile:'ARCHIVO NO VINCULADO',noReleases:'Todavía no hay lanzamientos disponibles para esta cuenta.',noContracts:'Todavía no hay contratos disponibles para esta cuenta.',admin:'ADMIN',artist:'ARTISTA',inactive:'Esta cuenta está desactivada. Contactá a LOWCUT// Records.',profileMissing:'Tu cuenta existe en Authentication, pero todavía no tiene un perfil configurado en Firestore.',loginFailed:'No se pudo iniciar sesión. Revisá el correo y la contraseña.',permissionError:'No se pudieron cargar los datos. Revisá las reglas de Firestore o los permisos de esta cuenta.',securityNote:'Por seguridad, LOWCUT// puede registrar el acceso, dispositivo y ubicación aproximada por IP.',humanWrong:'Completá el reCAPTCHA antes de iniciar sesión.',loginRecorded:'Acceso registrado.',logoutTitle:'¿CERRAR SESIÓN?',logoutText:'Vas a salir del LOWCUT// Artist Portal. Para volver a entrar vas a necesitar tus credenciales.',cancel:'CANCELAR',confirmLogout:'SÍ, CERRAR SESIÓN'},
+  en:{privateAccess:'PRIVATE ACCESS / LOWCUT// RECORDS',loginHero:'YOUR MUSIC.<br>YOUR SPACE.',loginIntro:'Private portal for LOWCUT// artists. Sign in with the account provided by the label to view releases, pre-saves and contracts linked to your profile.',access:'SIGN IN',credentials:'Use the credentials provided by LOWCUT// Records.',email:'EMAIL',password:'PASSWORD',enter:'ENTER PORTAL',logout:'LOG OUT',loading:'LOADING PORTAL...',dashboardEyebrow:'PRIVATE PORTAL / DASHBOARD',session:'ACTIVE SESSION',statReleases:'RELEASES',statContracts:'CONTRACTS',statPresaves:'ACTIVE PRE-SAVES',adminNote:'Your account has administrative access. This panel shows all documents available in Firestore.',releases:'RELEASES',releasesNote:'Dates, status and links associated with your releases.',contracts:'CONTRACTS',contractsNote:'Contracts registered by LOWCUT// Records for your profile.',privatePortal:'PRIVATE ARTIST PORTAL',hello:'HELLO',adminWelcome:'You are using an administrator account. You can view every release and contract registered in the portal.',artistWelcome:'Here you will find the information LOWCUT// Records has linked to your profile.',presave:'PRE-SAVE ↗',noPresave:'NO PRE-SAVE',releaseDate:'DATE',signed:'SIGNED',contract:'CONTRACT',openContract:'VIEW CONTRACT ↗',noFile:'FILE NOT LINKED',noReleases:'There are no releases available for this account yet.',noContracts:'There are no contracts available for this account yet.',admin:'ADMIN',artist:'ARTIST',inactive:'This account is disabled. Contact LOWCUT// Records.',profileMissing:'Your Authentication account exists, but it does not yet have a Firestore profile.',loginFailed:'Could not sign in. Check the email and password.',permissionError:'Could not load portal data. Check Firestore rules or this account permissions.',securityNote:'For security, LOWCUT// may log access, device information and approximate IP-based location.',humanWrong:'Complete the reCAPTCHA before signing in.',loginRecorded:'Access recorded.',logoutTitle:'LOG OUT?',logoutText:'You are about to leave the LOWCUT// Artist Portal. You will need your credentials to sign in again.',cancel:'CANCEL',confirmLogout:'YES, LOG OUT'}
+};
+function t(k){return i18n[currentLang][k]||k}
+function applyLang(lang){currentLang=lang;document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=i18n[lang][el.dataset.i18n];if(v)el.textContent=v});document.querySelectorAll('[data-i18n-html]').forEach(el=>{const v=i18n[lang][el.dataset.i18nHtml];if(v)el.innerHTML=v});document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));if(currentProfile)renderDashboard(currentProfile,cachedReleases,cachedContracts);try{localStorage.setItem('lowcutPortalLang',lang)}catch(e){}}
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',()=>applyLang(b.dataset.lang)));
+try{currentLang=localStorage.getItem('lowcutPortalLang')||'es'}catch(e){}applyLang(currentLang);
+
+function show(view){loginView.classList.add('hidden');loadingView.classList.add('hidden');dashboardView.classList.add('hidden');view.classList.remove('hidden');logoutBtn.style.display=view===dashboardView?'block':'none'}
+
+
+async function getApproxLocation(){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),3500);
+  try{
+    const r=await fetch('https://ipwho.is/',{signal:controller.signal});
+    const d=await r.json();
+    if(!d || d.success===false) throw new Error('location unavailable');
+    return {ip:d.ip||'—',city:d.city||'—',region:d.region||'—',country:d.country||'—'};
+  }catch(e){return {ip:'No disponible',city:'No disponible',region:'No disponible',country:'No disponible'};}
+  finally{clearTimeout(timer);}
+}
+
+async function notifyLogin(user){
+  try{
+    const loc=await getApproxLocation();
+    const fd=new FormData();
+    fd.append('_subject','LOWCUT// Artist Portal — nuevo inicio de sesión');
+    fd.append('01 - Usuario',user.email||'Sin email');
+    fd.append('02 - UID',user.uid);
+    fd.append('03 - Fecha y hora',new Date().toLocaleString('es-AR',{timeZone:'America/Argentina/Buenos_Aires'}));
+    fd.append('04 - IP aproximada',loc.ip);
+    fd.append('05 - Ciudad aproximada',loc.city);
+    fd.append('06 - Región aproximada',loc.region);
+    fd.append('07 - País aproximado',loc.country);
+    fd.append('08 - Dispositivo / navegador',navigator.userAgent);
+    fd.append('09 - Portal',location.href);
+    await fetch('https://formspree.io/f/xyeyqbgb',{method:'POST',body:fd,headers:{'Accept':'application/json'}});
+    securityStatus.textContent=t('loginRecorded');
+    securityStatus.className='login-security-status ok';
+  }catch(e){
+    console.warn('Login notification failed',e);
+  }
+}
+
+loginForm.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  loginError.textContent='';
+  securityStatus.textContent='';
+  const captchaToken=(window.grecaptcha&&grecaptcha.getResponse)?grecaptcha.getResponse():'';
+  if(!captchaToken){
+    loginError.textContent=t('humanWrong');
+    return;
+  }
+  loginBtn.disabled=true;
+  try{
+    const cred=await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
+    notifyLogin(cred.user);
+    if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();
+  }catch(err){
+    loginError.textContent=t('loginFailed');
+    loginBtn.disabled=false;
+    if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();
+  }
+});
+
+logoutBtn.addEventListener('click',()=>logoutModal.classList.remove('hidden'));
+cancelLogout.addEventListener('click',()=>logoutModal.classList.add('hidden'));
+logoutModal.addEventListener('click',(e)=>{if(e.target===logoutModal)logoutModal.classList.add('hidden')});
+confirmLogout.addEventListener('click',async()=>{
+  confirmLogout.disabled=true;
+  try{await signOut(auth);}finally{confirmLogout.disabled=false;logoutModal.classList.add('hidden');}
+});
+
+onAuthStateChanged(auth,async(user)=>{
+  if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];loginBtn.disabled=false;loginForm.reset();securityStatus.textContent='';if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
+  show(loadingView);
+  const debug=[];
+  try{
+    debug.push('AUTH OK\nUID: '+user.uid+'\nEMAIL: '+(user.email||'—'));
+    const profileSnap=await getDoc(doc(db,'users',user.uid));
+    debug.push('users/'+user.uid+': '+(profileSnap.exists()?'OK':'NO EXISTE'));
+    if(!profileSnap.exists()){throw new Error('PROFILE_MISSING');}
+    const profile={uid:user.uid,email:user.email,...profileSnap.data()};
+    debug.push('PROFILE: '+JSON.stringify({name:profile.name,role:profile.role,artistId:profile.artistId,active:profile.active}));
+    if(profile.active!==true){throw new Error('ACCOUNT_INACTIVE');}
+    currentProfile=profile;
+
+    let releases=[],contracts=[];
+    try{releases=await loadCollection('releases',profile);debug.push('RELEASES: OK ('+releases.length+')');}
+    catch(e){debug.push('RELEASES ERROR: '+(e.code||'')+' '+e.message);throw e;}
+    try{contracts=await loadCollection('contracts',profile);debug.push('CONTRACTS: OK ('+contracts.length+')');}
+    catch(e){debug.push('CONTRACTS ERROR: '+(e.code||'')+' '+e.message);throw e;}
+
+    cachedReleases=releases;cachedContracts=contracts;
+    renderDashboard(profile,releases,contracts);
+    show(dashboardView);
+  }catch(err){
+    console.error(err);
+    show(loginView);
+    loginBtn.disabled=false;
+    loginError.textContent=t('permissionError');
+    const box=document.getElementById('debugBox');
+    if(box) box.textContent=debug.join('\n')+'\nFINAL: '+(err.code||'')+' '+err.message;
+  }
+});
+
+async function loadCollection(name,profile){
+  const ref=collection(db,name);
+  const snap=profile.role==='admin'?await getDocs(ref):await getDocs(query(ref,where('authorizedUids','array-contains',profile.uid)));
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function safeUrl(v=''){try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:''}catch(e){return''}}
+function renderDashboard(profile,releases,contracts){
+  $('welcomeTitle').textContent=t('hello')+', '+(profile.name||'')+'.';
+  $('welcomeText').textContent=profile.role==='admin'?t('adminWelcome'):t('artistWelcome');
+  $('identityName').textContent=profile.name||'—';$('identityEmail').textContent=profile.email||'—';$('roleBadge').textContent=profile.role==='admin'?t('admin'):t('artist');
+  $('adminNote').classList.toggle('hidden',profile.role!=='admin');
+  $('releaseCount').textContent=releases.length;$('contractCount').textContent=contracts.length;$('presaveCount').textContent=releases.filter(r=>safeUrl(r.presave)).length;
+  renderReleases(releases);renderContracts(contracts);
+}
+function renderReleases(items){const box=$('releasesGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noReleases'))+'</div>';return;}box.innerHTML=items.map(r=>{const p=safeUrl(r.presave);return `<article class="card"><div class="card-top"><span class="tag">RELEASE</span><span class="mono" style="font-size:10px;color:#777">${esc(r.id)}</span></div><h3>${esc(r.title||r.id)}</h3><p><b>${esc(t('releaseDate'))}:</b> ${esc(r.releaseDate||'—')}</p><div class="card-actions">${p?`<a href="${esc(p)}" target="_blank" rel="noopener">${esc(t('presave'))}</a>`:`<span class="disabled">${esc(t('noPresave'))}</span>`}</div></article>`}).join('')}
+function renderContracts(items){const box=$('contractsGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noContracts'))+'</div>';return;}box.innerHTML=items.map(c=>{const fallbackUrls={'close-to-you-zanx':'assets/zanx-close-to-you.pdf'};const url=safeUrl(c.contractUrl)||fallbackUrls[c.id]||'';const status=String(c.status||'').toLowerCase()==='signed'?t('signed'):(c.status||'—');return `<article class="card"><div class="card-top"><span class="tag">${esc(t('contract'))}</span><span class="tag">${esc(status)}</span></div><h3>${esc(c.title||c.id)}</h3><p class="mono">${esc(c.id)}</p><div class="card-actions">${url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(t('openContract'))}</a>`:`<span class="disabled">${esc(t('noFile'))}</span>`}</div></article>`}).join('')}
+</script>
+</body>
+</html>
