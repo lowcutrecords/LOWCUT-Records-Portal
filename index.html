@@ -16,7 +16,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
 @media(max-width:620px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr}.stat{border-left:0}.topbar{height:auto;min-height:68px;padding:10px 14px}.top-actions{gap:6px}.dashboard{padding-top:28px}.section-head{align-items:start;flex-direction:column}.login-copy{padding:44px 22px}.login-panel{padding:18px}.login-card{padding:24px 18px}}
 
 /* V5 — login security + logout confirmation */
-.recaptcha-wrap{border:1px solid #111;background:#f4f2ed;padding:14px;margin:4px 0 16px;overflow:hidden}.recaptcha-wrap .g-recaptcha{transform-origin:0 0}.security-note{font-family:"Courier New",monospace;font-size:9px;line-height:1.5;color:#777;margin:-6px 0 16px}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;z-index:500}.modal-card{width:min(470px,100%);background:var(--paper);color:var(--ink);border:1px solid #fff;padding:28px}.modal-card .index{color:#666}.modal-card h3{font-size:34px;letter-spacing:-.04em;margin:12px 0 10px}.modal-card p{color:#666;line-height:1.55;margin:0 0 24px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-actions button{padding:14px 12px;border:1px solid #111;font-family:"Courier New",monospace;font-size:10px;font-weight:900;letter-spacing:1px}.modal-cancel{background:#fff;color:#111}.modal-confirm{background:#111;color:#fff}.login-security-status{min-height:14px;font-family:"Courier New",monospace;font-size:9px;color:#777;margin-top:10px}.login-security-status.ok{color:#275c2a}.login-security-status.warn{color:#8f0000}@media(max-width:380px){.recaptcha-wrap .g-recaptcha{transform:scale(.88);width:345px}}
+.recaptcha-wrap{border:1px solid #111;background:#f4f2ed;padding:14px;margin:4px 0 16px;overflow:hidden}.recaptcha-wrap .g-recaptcha{transform-origin:0 0}.security-note{font-family:"Courier New",monospace;font-size:9px;line-height:1.5;color:#777;margin:-6px 0 16px}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:20px;z-index:500}.modal-card{width:min(470px,100%);background:var(--paper);color:var(--ink);border:1px solid #fff;padding:28px}.modal-card .index{color:#666}.modal-card h3{font-size:34px;letter-spacing:-.04em;margin:12px 0 10px}.modal-card p{color:#666;line-height:1.55;margin:0 0 24px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modal-actions button{padding:14px 12px;border:1px solid #111;font-family:"Courier New",monospace;font-size:10px;font-weight:900;letter-spacing:1px}.modal-cancel{background:#fff;color:#111}.modal-confirm{background:#111;color:#fff}@media(max-width:380px){.recaptcha-wrap .g-recaptcha{transform:scale(.88);width:345px}}
 </style>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
@@ -46,9 +46,8 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
       <div class="recaptcha-wrap">
         <div class="g-recaptcha" data-sitekey="6LduKbotAAAAANSgY-j8XDh4obFwt6ssvjHSp3G5"></div>
       </div>
-      <div class="security-note" data-i18n="securityNote">Por seguridad, LOWCUT// puede registrar el acceso, dispositivo y ubicación aproximada por IP.</div>
+      <div class="security-note" data-i18n="securityNote">Este portal utiliza reCAPTCHA para proteger el acceso.</div>
       <button id="loginBtn" class="primary" type="submit" data-i18n="enter">ENTRAR AL PORTAL</button>
-      <div id="securityStatus" class="login-security-status"></div>
       <div id="loginError" class="error"></div><div id="debugBox" class="error" style="white-space:pre-wrap;font-family:monospace;font-size:12px"></div>
     </form>
   </div>
@@ -126,7 +125,6 @@ const db = getFirestore(app);
 const $ = (id)=>document.getElementById(id);
 const loginView=$('loginView'), loadingView=$('loadingView'), dashboardView=$('dashboardView');
 const loginForm=$('loginForm'), loginBtn=$('loginBtn'), loginError=$('loginError'), logoutBtn=$('logoutBtn');
-const securityStatus=$('securityStatus');
 const logoutModal=$('logoutModal'), cancelLogout=$('cancelLogout'), confirmLogout=$('confirmLogout');
 let currentLang='es';
 let currentProfile=null;
@@ -134,8 +132,8 @@ let cachedReleases=[];
 let cachedContracts=[];
 
 const i18n={
-  es:{privateAccess:'ACCESO PRIVADO / LOWCUT// RECORDS',loginHero:'TU MÚSICA.<br>TU ESPACIO.',loginIntro:'Portal privado para artistas de LOWCUT//. Iniciá sesión con la cuenta entregada por el sello para consultar lanzamientos, pre-saves y contratos asociados a tu perfil.',access:'INICIAR SESIÓN',credentials:'Usá las credenciales proporcionadas por LOWCUT// Records.',email:'CORREO ELECTRÓNICO',password:'CONTRASEÑA',enter:'ENTRAR AL PORTAL',logout:'CERRAR SESIÓN',loading:'CARGANDO PORTAL...',dashboardEyebrow:'PORTAL PRIVADO / PANEL',session:'SESIÓN ACTIVA',statReleases:'LANZAMIENTOS',statContracts:'CONTRATOS',statPresaves:'PRE-SAVES ACTIVOS',adminNote:'Tu cuenta tiene acceso administrativo. Este panel muestra todos los documentos disponibles en Firestore.',releases:'LANZAMIENTOS',releasesNote:'Fechas, estado y enlaces asociados a tus lanzamientos.',contracts:'CONTRATOS',contractsNote:'Contratos registrados por LOWCUT// Records para tu perfil.',privatePortal:'PORTAL PRIVADO DE ARTISTAS',hello:'HOLA',adminWelcome:'Estás usando una cuenta administradora. Podés consultar todos los lanzamientos y contratos registrados en el portal.',artistWelcome:'Acá vas a encontrar la información que LOWCUT// Records tiene asociada a tu perfil.',presave:'PRE-SAVE ↗',noPresave:'SIN PRE-SAVE',releaseDate:'FECHA',signed:'FIRMADO',contract:'CONTRATO',openContract:'VER CONTRATO ↗',noFile:'ARCHIVO NO VINCULADO',noReleases:'Todavía no hay lanzamientos disponibles para esta cuenta.',noContracts:'Todavía no hay contratos disponibles para esta cuenta.',admin:'ADMIN',artist:'ARTISTA',inactive:'Esta cuenta está desactivada. Contactá a LOWCUT// Records.',profileMissing:'Tu cuenta existe en Authentication, pero todavía no tiene un perfil configurado en Firestore.',loginFailed:'No se pudo iniciar sesión. Revisá el correo y la contraseña.',permissionError:'No se pudieron cargar los datos. Revisá las reglas de Firestore o los permisos de esta cuenta.',securityNote:'Por seguridad, LOWCUT// puede registrar el acceso, dispositivo y ubicación aproximada por IP.',humanWrong:'Completá el reCAPTCHA antes de iniciar sesión.',loginRecorded:'Acceso registrado.',pendingSignature:'PENDIENTE DE FIRMA',signContract:'FIRMAR CONTRATO ↗',logoutTitle:'¿CERRAR SESIÓN?',logoutText:'Vas a salir del LOWCUT// Artist Portal. Para volver a entrar vas a necesitar tus credenciales.',cancel:'CANCELAR',confirmLogout:'SÍ, CERRAR SESIÓN'},
-  en:{privateAccess:'PRIVATE ACCESS / LOWCUT// RECORDS',loginHero:'YOUR MUSIC.<br>YOUR SPACE.',loginIntro:'Private portal for LOWCUT// artists. Sign in with the account provided by the label to view releases, pre-saves and contracts linked to your profile.',access:'SIGN IN',credentials:'Use the credentials provided by LOWCUT// Records.',email:'EMAIL',password:'PASSWORD',enter:'ENTER PORTAL',logout:'LOG OUT',loading:'LOADING PORTAL...',dashboardEyebrow:'PRIVATE PORTAL / DASHBOARD',session:'ACTIVE SESSION',statReleases:'RELEASES',statContracts:'CONTRACTS',statPresaves:'ACTIVE PRE-SAVES',adminNote:'Your account has administrative access. This panel shows all documents available in Firestore.',releases:'RELEASES',releasesNote:'Dates, status and links associated with your releases.',contracts:'CONTRACTS',contractsNote:'Contracts registered by LOWCUT// Records for your profile.',privatePortal:'PRIVATE ARTIST PORTAL',hello:'HELLO',adminWelcome:'You are using an administrator account. You can view every release and contract registered in the portal.',artistWelcome:'Here you will find the information LOWCUT// Records has linked to your profile.',presave:'PRE-SAVE ↗',noPresave:'NO PRE-SAVE',releaseDate:'DATE',signed:'SIGNED',contract:'CONTRACT',openContract:'VIEW CONTRACT ↗',noFile:'FILE NOT LINKED',noReleases:'There are no releases available for this account yet.',noContracts:'There are no contracts available for this account yet.',admin:'ADMIN',artist:'ARTIST',inactive:'This account is disabled. Contact LOWCUT// Records.',profileMissing:'Your Authentication account exists, but it does not yet have a Firestore profile.',loginFailed:'Could not sign in. Check the email and password.',permissionError:'Could not load portal data. Check Firestore rules or this account permissions.',securityNote:'For security, LOWCUT// may log access, device information and approximate IP-based location.',humanWrong:'Complete the reCAPTCHA before signing in.',loginRecorded:'Access recorded.',pendingSignature:'PENDING SIGNATURE',signContract:'SIGN CONTRACT ↗',logoutTitle:'LOG OUT?',logoutText:'You are about to leave the LOWCUT// Artist Portal. You will need your credentials to sign in again.',cancel:'CANCEL',confirmLogout:'YES, LOG OUT'}
+  es:{privateAccess:'ACCESO PRIVADO / LOWCUT// RECORDS',loginHero:'TU MÚSICA.<br>TU ESPACIO.',loginIntro:'Portal privado para artistas de LOWCUT//. Iniciá sesión con la cuenta entregada por el sello para consultar lanzamientos, pre-saves y contratos asociados a tu perfil.',access:'INICIAR SESIÓN',credentials:'Usá las credenciales proporcionadas por LOWCUT// Records.',email:'CORREO ELECTRÓNICO',password:'CONTRASEÑA',enter:'ENTRAR AL PORTAL',logout:'CERRAR SESIÓN',loading:'CARGANDO PORTAL...',dashboardEyebrow:'PORTAL PRIVADO / PANEL',session:'SESIÓN ACTIVA',statReleases:'LANZAMIENTOS',statContracts:'CONTRATOS',statPresaves:'PRE-SAVES ACTIVOS',adminNote:'Tu cuenta tiene acceso administrativo. Este panel muestra todos los documentos disponibles en Firestore.',releases:'LANZAMIENTOS',releasesNote:'Fechas, estado y enlaces asociados a tus lanzamientos.',contracts:'CONTRATOS',contractsNote:'Contratos registrados por LOWCUT// Records para tu perfil.',privatePortal:'PORTAL PRIVADO DE ARTISTAS',hello:'HOLA',adminWelcome:'Estás usando una cuenta administradora. Podés consultar todos los lanzamientos y contratos registrados en el portal.',artistWelcome:'Acá vas a encontrar la información que LOWCUT// Records tiene asociada a tu perfil.',presave:'PRE-SAVE ↗',noPresave:'SIN PRE-SAVE',releaseDate:'FECHA',signed:'FIRMADO',contract:'CONTRATO',openContract:'VER CONTRATO ↗',noFile:'ARCHIVO NO VINCULADO',noReleases:'Todavía no hay lanzamientos disponibles para esta cuenta.',noContracts:'Todavía no hay contratos disponibles para esta cuenta.',admin:'ADMIN',artist:'ARTISTA',inactive:'Esta cuenta está desactivada. Contactá a LOWCUT// Records.',profileMissing:'Tu cuenta existe en Authentication, pero todavía no tiene un perfil configurado en Firestore.',loginFailed:'No se pudo iniciar sesión. Revisá el correo y la contraseña.',permissionError:'No se pudieron cargar los datos. Revisá las reglas de Firestore o los permisos de esta cuenta.',securityNote:'Este portal utiliza reCAPTCHA para proteger el acceso.',humanWrong:'Completá el reCAPTCHA antes de iniciar sesión.',loginRecorded:'Acceso registrado.',pendingSignature:'PENDIENTE DE FIRMA',signContract:'FIRMAR CONTRATO ↗',logoutTitle:'¿CERRAR SESIÓN?',logoutText:'Vas a salir del LOWCUT// Artist Portal. Para volver a entrar vas a necesitar tus credenciales.',cancel:'CANCELAR',confirmLogout:'SÍ, CERRAR SESIÓN'},
+  en:{privateAccess:'PRIVATE ACCESS / LOWCUT// RECORDS',loginHero:'YOUR MUSIC.<br>YOUR SPACE.',loginIntro:'Private portal for LOWCUT// artists. Sign in with the account provided by the label to view releases, pre-saves and contracts linked to your profile.',access:'SIGN IN',credentials:'Use the credentials provided by LOWCUT// Records.',email:'EMAIL',password:'PASSWORD',enter:'ENTER PORTAL',logout:'LOG OUT',loading:'LOADING PORTAL...',dashboardEyebrow:'PRIVATE PORTAL / DASHBOARD',session:'ACTIVE SESSION',statReleases:'RELEASES',statContracts:'CONTRACTS',statPresaves:'ACTIVE PRE-SAVES',adminNote:'Your account has administrative access. This panel shows all documents available in Firestore.',releases:'RELEASES',releasesNote:'Dates, status and links associated with your releases.',contracts:'CONTRACTS',contractsNote:'Contracts registered by LOWCUT// Records for your profile.',privatePortal:'PRIVATE ARTIST PORTAL',hello:'HELLO',adminWelcome:'You are using an administrator account. You can view every release and contract registered in the portal.',artistWelcome:'Here you will find the information LOWCUT// Records has linked to your profile.',presave:'PRE-SAVE ↗',noPresave:'NO PRE-SAVE',releaseDate:'DATE',signed:'SIGNED',contract:'CONTRACT',openContract:'VIEW CONTRACT ↗',noFile:'FILE NOT LINKED',noReleases:'There are no releases available for this account yet.',noContracts:'There are no contracts available for this account yet.',admin:'ADMIN',artist:'ARTIST',inactive:'This account is disabled. Contact LOWCUT// Records.',profileMissing:'Your Authentication account exists, but it does not yet have a Firestore profile.',loginFailed:'Could not sign in. Check the email and password.',permissionError:'Could not load portal data. Check Firestore rules or this account permissions.',securityNote:'This portal uses reCAPTCHA to protect access.',humanWrong:'Complete the reCAPTCHA before signing in.',loginRecorded:'Access recorded.',pendingSignature:'PENDING SIGNATURE',signContract:'SIGN CONTRACT ↗',logoutTitle:'LOG OUT?',logoutText:'You are about to leave the LOWCUT// Artist Portal. You will need your credentials to sign in again.',cancel:'CANCEL',confirmLogout:'YES, LOG OUT'}
 };
 function t(k){return i18n[currentLang][k]||k}
 function applyLang(lang){currentLang=lang;document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(el=>{const v=i18n[lang][el.dataset.i18n];if(v)el.textContent=v});document.querySelectorAll('[data-i18n-html]').forEach(el=>{const v=i18n[lang][el.dataset.i18nHtml];if(v)el.innerHTML=v});document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));if(currentProfile)renderDashboard(currentProfile,cachedReleases,cachedContracts);try{localStorage.setItem('lowcutPortalLang',lang)}catch(e){}}
@@ -145,44 +143,9 @@ try{currentLang=localStorage.getItem('lowcutPortalLang')||'es'}catch(e){}applyLa
 function show(view){loginView.classList.add('hidden');loadingView.classList.add('hidden');dashboardView.classList.add('hidden');view.classList.remove('hidden');logoutBtn.style.display=view===dashboardView?'block':'none'}
 
 
-async function getApproxLocation(){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),3500);
-  try{
-    const r=await fetch('https://ipwho.is/',{signal:controller.signal});
-    const d=await r.json();
-    if(!d || d.success===false) throw new Error('location unavailable');
-    return {ip:d.ip||'—',city:d.city||'—',region:d.region||'—',country:d.country||'—'};
-  }catch(e){return {ip:'No disponible',city:'No disponible',region:'No disponible',country:'No disponible'};}
-  finally{clearTimeout(timer);}
-}
-
-async function notifyLogin(user){
-  try{
-    const loc=await getApproxLocation();
-    const fd=new FormData();
-    fd.append('_subject','LOWCUT// Artist Portal — nuevo inicio de sesión');
-    fd.append('01 - Usuario',user.email||'Sin email');
-    fd.append('02 - UID',user.uid);
-    fd.append('03 - Fecha y hora',new Date().toLocaleString('es-AR',{timeZone:'America/Argentina/Buenos_Aires'}));
-    fd.append('04 - IP aproximada',loc.ip);
-    fd.append('05 - Ciudad aproximada',loc.city);
-    fd.append('06 - Región aproximada',loc.region);
-    fd.append('07 - País aproximado',loc.country);
-    fd.append('08 - Dispositivo / navegador',navigator.userAgent);
-    fd.append('09 - Portal',location.href);
-    await fetch('https://formspree.io/f/xyeyqbgb',{method:'POST',body:fd,headers:{'Accept':'application/json'}});
-    securityStatus.textContent=t('loginRecorded');
-    securityStatus.className='login-security-status ok';
-  }catch(e){
-    console.warn('Login notification failed',e);
-  }
-}
-
 loginForm.addEventListener('submit',async(e)=>{
   e.preventDefault();
   loginError.textContent='';
-  securityStatus.textContent='';
   const captchaToken=(window.grecaptcha&&grecaptcha.getResponse)?grecaptcha.getResponse():'';
   if(!captchaToken){
     loginError.textContent=t('humanWrong');
@@ -191,7 +154,6 @@ loginForm.addEventListener('submit',async(e)=>{
   loginBtn.disabled=true;
   try{
     const cred=await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
-    notifyLogin(cred.user);
     if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();
   }catch(err){
     loginError.textContent=t('loginFailed');
@@ -209,7 +171,7 @@ confirmLogout.addEventListener('click',async()=>{
 });
 
 onAuthStateChanged(auth,async(user)=>{
-  if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];loginBtn.disabled=false;loginForm.reset();securityStatus.textContent='';if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
+  if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];loginBtn.disabled=false;loginForm.reset();if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
   show(loadingView);
   const debug=[];
   try{
