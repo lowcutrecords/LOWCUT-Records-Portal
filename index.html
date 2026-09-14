@@ -216,13 +216,19 @@ loginForm.addEventListener('submit',async(e)=>{
     return;
   }
   loginBtn.disabled=true;
+  const originalLabel=loginBtn.textContent;
+  loginBtn.textContent=currentLang==='es'?'INGRESANDO...':'SIGNING IN...';
   try{
     const cred=await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
-    recordLogin(cred.user);
+    show(loadingView);
+    recordLogin(cred.user).catch(()=>{});
     if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();
   }catch(err){
-    loginError.textContent=t('loginFailed');
+    console.error('LOGIN ERROR',err);
+    show(loginView);
+    loginError.textContent=t('loginFailed')+(err?.code?' ['+err.code+']':'');
     loginBtn.disabled=false;
+    loginBtn.textContent=originalLabel;
     if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();
   }
 });
@@ -234,11 +240,11 @@ confirmLogout.addEventListener('click',async()=>{
   confirmLogout.disabled=true;
   try{await signOut(auth);}finally{confirmLogout.disabled=false;logoutModal.classList.add('hidden');}
 });
-metadataClose.addEventListener('click',()=>metadataModal.classList.add('hidden'));
-metadataModal.addEventListener('click',(e)=>{if(e.target===metadataModal)metadataModal.classList.add('hidden')});
+metadataClose?.addEventListener('click',()=>metadataModal?.classList.add('hidden'));
+metadataModal?.addEventListener('click',(e)=>{if(e.target===metadataModal)metadataModal.classList.add('hidden')});
 
 onAuthStateChanged(auth,async(user)=>{
-  if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];cachedLoginLogs=[];loginBtn.disabled=false;loginForm.reset();if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
+  if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];cachedLoginLogs=[];loginBtn.disabled=false;loginBtn.textContent=t('enter');loginForm.reset();if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
   show(loadingView);
   const debug=[];
   try{
@@ -276,11 +282,13 @@ onAuthStateChanged(auth,async(user)=>{
     } else {cachedLoginLogs=[];cachedAdminUsers=[];}
     renderDashboard(profile,releases,contracts);
     if(profile.role==='admin')renderLoginLogs(cachedLoginLogs);
+    loginBtn.textContent=t('enter');
     show(dashboardView);
   }catch(err){
     console.error(err);
     show(loginView);
     loginBtn.disabled=false;
+    loginBtn.textContent=t('enter');
     loginError.textContent=t('permissionError');
     const box=document.getElementById('debugBox');
     if(box) box.textContent=debug.join('\n')+'\nFINAL: '+(err.code||'')+' '+err.message;
