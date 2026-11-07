@@ -90,7 +90,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
   </div>
   <div class="login-panel">
     <form id="loginForm" class="login-card">
-      <img src="assets/lowcut-logo.png" alt="LOWCUT Records">
+      <img src="assets/lowcut-logo.webp" alt="LOWCUT Records">
       <div class="index">AUTH / 01</div>
       <h2 data-i18n="access">INICIAR SESIÓN</h2>
       <p data-i18n="credentials">Usá las credenciales proporcionadas por LOWCUT// Records.</p>
@@ -168,13 +168,13 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
         <input type="hidden" id="webOriginalId">
         <div class="index" id="webFormMode">NUEVO LANZAMIENTO</div>
         <div class="web-form-grid" style="margin-top:16px">
-          <div class="field"><label>ID INTERNO (AUTOMÁTICO)</label><input id="webSlug" readonly placeholder="insanev2"><div class="web-help">Se genera desde el título, sin espacios ni guiones. Ej.: INSΛNE V2 → insanev2.</div></div>
+          <div class="field"><label>ID INTERNO (AUTOMÁTICO)</label><input id="webSlug" readonly placeholder="insanev2"><div class="web-help">Se genera al crear el lanzamiento y se conserva al editar su título, para mantener sus enlaces.</div></div>
           <div class="field"><label>TÍTULO *</label><input id="webTitle" required placeholder="INSΛNE V2"></div>
           <div class="field full"><label>ARTISTAS *</label><input id="webArtists" required placeholder="Zanx, Fayre"><div class="web-help">Separá varios artistas con coma.</div></div>
           <div class="field"><label>FECHA *</label><input id="webDate" required type="date"></div>
           <div class="field"><label>ESTADO *</label><select id="webStatus" required><option value="coming_soon">COMING SOON</option><option value="presave">PRE-SAVE</option><option value="released">LISTEN NOW</option><option value="hidden">HIDDEN</option></select></div>
           <div class="field full"><label>LINK PÚBLICO / SMARTLINK / PRE-SAVE</label><input id="webPublicLink" type="url" placeholder="https://..."></div>
-          <div class="field"><label>ORDEN</label><input id="webDisplayOrder" type="number" step="1" min="0" value="1"></div>
+          <div class="field full"><label>DESCRIPCIÓN PÚBLICA</label><textarea id="webDescription" rows="3"></textarea></div><div class="field"><label>GÉNERO</label><input id="webGenre"></div><div class="field"><label>CRÉDITOS PÚBLICOS</label><input id="webCredits"></div><div class="field"><label>ORDEN</label><input id="webDisplayOrder" type="number" step="1" min="0" value="1"></div>
           <div class="field"><label>LABEL</label><input id="webLabel" value="LOWCUT// Records"></div>
           <div class="field full"><div class="web-checks"><label class="web-check"><input id="webVisible" type="checkbox" checked> VISIBLE EN WEB</label><label class="web-check"><input id="webFeatured" type="checkbox"> DESTACADO</label></div></div>
         </div>
@@ -182,7 +182,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
         <div class="quick-status"><span class="mono" style="font-size:9px;padding:9px 0;color:#666">ACCESOS RÁPIDOS:</span><button type="button" data-web-status="coming_soon">COMING SOON</button><button type="button" data-web-status="presave">PRE-SAVE</button><button type="button" data-web-status="released">LISTEN NOW</button><button type="button" data-web-visible="false">OCULTAR</button><button type="button" data-web-visible="true">PUBLICAR</button></div>
 
         <div class="web-media-row" style="margin-top:18px">
-          <div class="web-media-box"><b>PORTADA</b><div class="field" style="margin-top:10px"><label>RUTA SELECCIONADA</label><input id="webCoverPath" placeholder="assets/releases/insane-v2-cover.png"></div><div id="webCoverCurrent" class="web-media-current">SIN PORTADA CARGADA</div><img id="webCoverPreview" class="hidden" alt="Vista previa de portada"><div class="media-library"><div class="media-library-head"><strong>PORTADAS DEL REPO</strong><div class="media-library-tools"><button class="media-filter active" type="button" data-cover-filter="all">TODAS</button><button class="media-filter" type="button" data-cover-filter="free">LIBRES</button><button class="media-filter" type="button" data-cover-filter="used">USADAS</button><button class="media-refresh" id="refreshCoverLibrary" type="button">ACTUALIZAR</button></div></div><div id="coverLibrary" class="media-grid"><div class="media-loading">TOCÁ ACTUALIZAR PARA LEER GITHUB.</div></div><div class="media-library-note">El portal lee automáticamente <b>assets/releases/</b> del repo principal. Elegí una portada con un click.</div></div></div>
+          <div class="web-media-box"><b>PORTADA</b><div class="field" style="margin-top:10px"><label>RUTA SELECCIONADA</label><input id="webCoverPath" placeholder="assets/releases/insane-v2-cover.webp"></div><div id="webCoverCurrent" class="web-media-current">SIN PORTADA CARGADA</div><img id="webCoverPreview" class="hidden" alt="Vista previa de portada"><div class="media-library"><div class="media-library-head"><strong>PORTADAS DEL REPO</strong><div class="media-library-tools"><button class="media-filter active" type="button" data-cover-filter="all">TODAS</button><button class="media-filter" type="button" data-cover-filter="free">LIBRES</button><button class="media-filter" type="button" data-cover-filter="used">USADAS</button><button class="media-refresh" id="refreshCoverLibrary" type="button">ACTUALIZAR</button></div></div><div id="coverLibrary" class="media-grid"><div class="media-loading">TOCÁ ACTUALIZAR PARA LEER GITHUB.</div></div><div class="media-library-note">El portal lee automáticamente <b>assets/releases/</b> del repo principal. Elegí una portada con un click.</div></div></div>
           <div class="web-media-box"><b>PREVIEW DE AUDIO</b><div class="field" style="margin-top:10px"><label>RUTA SELECCIONADA</label><input id="webPreviewPath" placeholder="assets/releases/insane-v2-preview.mp3"></div><div id="webAudioCurrent" class="web-media-current">SIN PREVIEW CARGADO</div><audio id="webAudioPreview" class="hidden" controls></audio><div class="media-library"><div class="media-library-head"><strong>PREVIEWS DEL REPO</strong><div class="media-library-tools"><button class="media-filter active" type="button" data-audio-filter="all">TODOS</button><button class="media-filter" type="button" data-audio-filter="free">LIBRES</button><button class="media-filter" type="button" data-audio-filter="used">USADOS</button><button class="media-refresh" id="refreshAudioLibrary" type="button">ACTUALIZAR</button></div></div><div id="audioLibrary" class="media-grid"><div class="media-loading">TOCÁ ACTUALIZAR PARA LEER GITHUB.</div></div><div class="media-library-note">Los archivos ya usados se marcan automáticamente y muestran en qué release están asignados.</div></div></div>
         </div>
 
@@ -191,6 +191,8 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
       </form>
     </div>
   </section>
+
+  <section id="publicArtistManager" class="web-manager hidden"></section>
 
   <section id="loginActivitySection" class="portal-section hidden">
     <div class="section-head"><div><div class="index">00 / SECURITY</div><h2 data-i18n="loginActivity">REGISTROS DE ACCESO</h2></div><p class="section-note" data-i18n="loginActivityNote">Historial de inicios de sesión registrados por el portal.</p></div>
@@ -270,6 +272,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import { mountPublicArtists } from './public-artists.mjs';
 import { getFirestore, doc, getDoc, collection, getDocs, query, where, addDoc, setDoc, deleteDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -417,6 +420,7 @@ onAuthStateChanged(auth,async(user)=>{
       try{cachedLoginLogs=await loadLoginLogs();}catch(e){console.warn('LOGIN LOGS ERROR',e);cachedLoginLogs=[];}
       try{cachedAdminUsers=await loadAdminUsers();}catch(e){console.warn('USERS ERROR',e);cachedAdminUsers=[];}
       try{cachedPublicReleases=await loadPublicReleases();}catch(e){console.warn('PUBLIC RELEASES ERROR',e);cachedPublicReleases=[];}
+      await publicArtistManager.refresh();
       renderWebReleaseList();
     } else {cachedLoginLogs=[];cachedAdminUsers=[];cachedPublicReleases=[];}
     renderDashboard(profile,releases,contracts);
@@ -466,6 +470,7 @@ function renderDashboard(profile,releases,contracts){
   $('loginActivitySection').classList.toggle('hidden',profile.role!=='admin');
   $('adminDashboardSection').classList.toggle('hidden',profile.role!=='admin');
   $('webReleaseManager').classList.toggle('hidden',profile.role!=='admin');
+  $('publicArtistManager').classList.toggle('hidden',profile.role!=='admin');
   $('contractManager')?.classList.toggle('hidden',profile.role!=='admin');
   if(profile.role==='admin') renderAdminDashboard(releases,contracts,cachedAdminUsers);
   $('releaseCount').textContent=releases.length;$('contractCount').textContent=contracts.length;$('presaveCount').textContent=releases.filter(r=>safeUrl(r.presave)).length;
@@ -535,6 +540,7 @@ function renderReleases(items){const box=$('releasesGrid');if(!items.length){box
 function renderContracts(items){const box=$('contractsGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noContracts'))+'</div>';return;}box.innerHTML=items.map(c=>{const fallbackUrls={'close-to-you-zanx':'assets/zanx-close-to-you.pdf'};const url=safeUrl(c.contractUrl)||fallbackUrls[c.id]||'';const rawStatus=String(c.status||'').toLowerCase();const isPending=['pending','pending-signature'].includes(rawStatus);const status=rawStatus==='signed'?t('signed'):isPending?t('pendingSignature'):(c.status||'—');const actionLabel=isPending?t('signContract'):t('openContract');return `<article class="card"><div class="card-top"><span class="tag">${esc(t('contract'))}</span><span class="tag">${esc(status)}</span></div><h3>${esc(c.title||c.id)}</h3><p class="mono">${esc(c.id)}</p><div class="card-actions">${url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(actionLabel)}</a>`:`<span class="disabled">${esc(t('noFile'))}</span>`}</div></article>`}).join('')}
 
 /* ===== ADMIN WEBSITE RELEASE MANAGER ===== */
+let cachedPublicArtists=[];
 const MAIN_SITE_BASE='https://lowcutrecords.github.io/LOWCUT-Records/';
 const GITHUB_REPO='lowcutrecords/LOWCUT-Records';
 const GITHUB_RELEASES_PATH='assets/releases';
@@ -611,18 +617,19 @@ function resetWebForm(){
 }
 function openWebReleaseCreator(){resetWebForm();webReleaseListPanel.classList.add('hidden');webReleaseFormPanel.classList.remove('hidden');if(githubMediaFiles.length){renderCoverLibrary();renderAudioLibrary()}webReleaseFormPanel.scrollIntoView({behavior:'smooth',block:'start'});}
 function openWebReleaseEditor(r){
-  resetWebForm();$('webOriginalId').value=r.id;$('webSlug').value=releaseIdFromTitle(r.title||r.id);$('webSlug').readOnly=true;$('webTitle').value=r.title||'';$('webArtists').value=Array.isArray(r.artists)?r.artists.join(', '):(r.artists||'');$('webDate').value=r.releaseDate||'';$('webStatus').value=r.status||'coming_soon';$('webPublicLink').value=r.publicLink||'';$('webDisplayOrder').value=Number(r.displayOrder)||1;$('webLabel').value=r.label||'LOWCUT// Records';$('webVisible').checked=r.visible!==false;$('webFeatured').checked=r.featured===true;$('webFormMode').textContent='EDITAR / '+(r.title||r.id);webDeleteBtn.classList.remove('hidden');
+  resetWebForm();$('webOriginalId').value=r.id;$('webSlug').value=r.id;$('webSlug').readOnly=true;$('webTitle').value=r.title||'';$('webArtists').value=Array.isArray(r.artists)?r.artists.join(', '):(r.artists||'');$('webDate').value=r.releaseDate||'';$('webStatus').value=r.status||'coming_soon';$('webPublicLink').value=r.publicLink||'';$('webDisplayOrder').value=Number(r.displayOrder)||1;$('webLabel').value=r.label||'LOWCUT// Records';$('webVisible').checked=r.visible!==false;$('webFeatured').checked=r.featured===true;$('webFormMode').textContent='EDITAR / '+(r.title||r.id);webDeleteBtn.classList.remove('hidden');
+  $('webDescription').value=r.description||'';$('webGenre').value=r.genre||'';$('webCredits').value=r.credits||'';
   $('webCoverPath').value=r.coverPath||'';$('webPreviewPath').value=r.previewPath||'';const cover=publicMediaUrl(r.coverPath||'');const audio=publicMediaUrl(r.previewPath||'');$('webCoverCurrent').textContent=cover||'SIN PORTADA CARGADA';$('webAudioCurrent').textContent=audio||'SIN PREVIEW CARGADO';if(cover){$('webCoverPreview').src=cover;$('webCoverPreview').classList.remove('hidden')}if(audio){$('webAudioPreview').src=audio;$('webAudioPreview').classList.remove('hidden')}
   webReleaseListPanel.classList.add('hidden');webReleaseFormPanel.classList.remove('hidden');if(githubMediaFiles.length){renderCoverLibrary();renderAudioLibrary()}webReleaseFormPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function releaseIdFromTitle(v){return String(v||'').replace(/[Λλ]/g,'a').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
 function artistIdFromName(v){return releaseIdFromTitle(v)}
-function artistIdsFromNames(names){return [...new Set((names||[]).map(name=>{const key=artistIdFromName(name);const match=cachedAdminUsers.find(u=>u.role==='artist'&&(artistIdFromName(u.artistId||'')===key||artistIdFromName(u.name||'')===key));return String(match?.artistId||key).trim()}).filter(Boolean))]}
+function artistIdsFromNames(names){return (names||[]).map(name=>{const key=artistIdFromName(name);const pub=cachedPublicArtists.find(a=>artistIdFromName(a.name)===key||(a.aliases||[]).some(n=>artistIdFromName(n)===key));if(pub)return pub.id;const match=cachedAdminUsers.find(u=>u.role==='artist'&&(artistIdFromName(u.artistId||'')===key||artistIdFromName(u.name||'')===key));return String(match?.artistId||key).trim()})}
 function authorizedUidsForArtists(artistIds,previous=[]){const mapped=cachedAdminUsers.filter(u=>u.role==='artist'&&u.active===true&&artistIds.includes(String(u.artistId||'').trim())).map(u=>u.id||u.uid).filter(Boolean);return mapped.length?[...new Set(mapped)]:Array.isArray(previous)?previous:[]}
 webCreateBtn?.addEventListener('click',openWebReleaseCreator);
 webModifyBtn?.addEventListener('click',()=>{webReleaseFormPanel.classList.add('hidden');webReleaseListPanel.classList.remove('hidden');renderWebReleaseList();webReleaseListPanel.scrollIntoView({behavior:'smooth',block:'start'});});
 $('webCancelBtn')?.addEventListener('click',()=>{webReleaseFormPanel.classList.add('hidden');webReleaseListPanel.classList.add('hidden');});
-$('webTitle')?.addEventListener('input',()=>{$('webSlug').value=releaseIdFromTitle($('webTitle').value)});
+$('webTitle')?.addEventListener('input',()=>{if(!$('webOriginalId').value)$('webSlug').value=releaseIdFromTitle($('webTitle').value)});
 document.querySelectorAll('[data-web-status]').forEach(b=>b.addEventListener('click',()=>{$('webStatus').value=b.dataset.webStatus}));
 document.querySelectorAll('[data-web-visible]').forEach(b=>b.addEventListener('click',()=>{$('webVisible').checked=b.dataset.webVisible==='true'}));
 function refreshWebMediaPreview(){const cover=publicMediaUrl($('webCoverPath').value.trim());const audio=publicMediaUrl($('webPreviewPath').value.trim());$('webCoverCurrent').textContent=cover||'SIN PORTADA CARGADA';$('webAudioCurrent').textContent=audio||'SIN PREVIEW CARGADO';if(cover){$('webCoverPreview').src=cover;$('webCoverPreview').classList.remove('hidden')}else{$('webCoverPreview').classList.add('hidden');$('webCoverPreview').removeAttribute('src')}if(audio){$('webAudioPreview').src=audio;$('webAudioPreview').classList.remove('hidden')}else{$('webAudioPreview').classList.add('hidden');$('webAudioPreview').removeAttribute('src')}}
@@ -636,15 +643,19 @@ document.querySelectorAll('[data-audio-filter]').forEach(b=>b.addEventListener('
 
 webReleaseForm?.addEventListener('submit',async(e)=>{
   e.preventDefault();if(currentProfile?.role!=='admin')return;
+  if(['localhost','127.0.0.1'].includes(location.hostname)){webFormStatus.textContent='Copia local: guardado real desactivado.';return;}
   webFormStatus.textContent='GUARDANDO EN releases + publicReleases...';webFormStatus.className='web-status';webSaveBtn.disabled=true;
   try{
     const title=$('webTitle').value.trim();
-    const targetId=releaseIdFromTitle(title);if(!targetId)throw new Error('El título no genera un ID interno válido.');
+    const targetId=$('webOriginalId').value.trim()||releaseIdFromTitle(title);if(!targetId)throw new Error('El título no genera un ID interno válido.');
     const originalId=$('webOriginalId').value.trim();
     const artists=$('webArtists').value.split(',').map(x=>x.trim()).filter(Boolean);
     const artistIds=artistIdsFromNames(artists);
     const coverPath=$('webCoverPath').value.trim();const previewPath=$('webPreviewPath').value.trim();
-    const publicData={title,artists,releaseDate:$('webDate').value,status:$('webStatus').value,publicLink:$('webPublicLink').value.trim(),displayOrder:Number($('webDisplayOrder').value)||0,label:$('webLabel').value.trim()||'LOWCUT// Records',visible:$('webVisible').checked,featured:$('webFeatured').checked,coverPath,previewPath,updatedAt:serverTimestamp()};
+    const existingPublic=cachedPublicReleases.find(r=>r.id===targetId);
+    if(!originalId && existingPublic)throw new Error('Ya existe un lanzamiento con ese ID. Usá Modificar lanzamiento.');
+    const stableSlugs={menta:'menta-lack',insanev2:'insane-v2-zanx',singularity:'singularity',letmego:'let-me-go-zanx'};
+    const publicData={title,artists,artistIds,slug:existingPublic?.slug||stableSlugs[targetId]||targetId,description:$('webDescription').value.trim(),genre:$('webGenre').value.trim(),credits:$('webCredits').value.trim(),releaseDate:$('webDate').value,status:$('webStatus').value,publicLink:$('webPublicLink').value.trim(),displayOrder:Number($('webDisplayOrder').value)||0,label:$('webLabel').value.trim()||'LOWCUT// Records',visible:$('webVisible').checked,featured:$('webFeatured').checked,coverPath,previewPath,updatedAt:serverTimestamp()};
     if(!originalId)publicData.createdAt=serverTimestamp();
 
     const sourcePrivateRef=doc(db,'releases',originalId||targetId);
@@ -663,13 +674,13 @@ webReleaseForm?.addEventListener('submit',async(e)=>{
     cachedPublicReleases=await loadPublicReleases();
     cachedReleases=await loadCollection('releases',currentProfile);
     renderWebReleaseList();renderDashboard(currentProfile,cachedReleases,cachedContracts);
-    webFormStatus.textContent='GUARDADO EN LAS DOS COLECCIONES · ID: '+targetId;webFormStatus.className='web-status ok';$('webOriginalId').value=targetId;$('webSlug').value=targetId;webDeleteBtn.classList.remove('hidden');$('webFormMode').textContent='EDITAR / '+title;
+    webFormStatus.textContent='GUARDADO EN FIREBASE · La web lo recogerá en el próximo ciclo cuando la sincronización esté activa · ID: '+targetId;webFormStatus.className='web-status ok';$('webOriginalId').value=targetId;$('webSlug').value=targetId;webDeleteBtn.classList.remove('hidden');$('webFormMode').textContent='EDITAR / '+title;
   }catch(err){console.error(err);webFormStatus.textContent='ERROR: '+(err?.message||err);webFormStatus.className='web-status err';}
   finally{webSaveBtn.disabled=false;}
 });
 webDeleteBtn?.addEventListener('click',async()=>{
   const originalId=$('webOriginalId').value.trim();if(!originalId||currentProfile?.role!=='admin')return;
-  const targetId=releaseIdFromTitle($('webTitle').value)||originalId;
+  const targetId=originalId;
   if(!confirm('¿Eliminar este lanzamiento de publicReleases Y releases? Los archivos de GitHub no se eliminarán.'))return;
   webDeleteBtn.disabled=true;
   try{const batch=writeBatch(db);batch.delete(doc(db,'publicReleases',originalId));batch.delete(doc(db,'releases',originalId));if(targetId!==originalId){batch.delete(doc(db,'publicReleases',targetId));batch.delete(doc(db,'releases',targetId));}await batch.commit();cachedPublicReleases=await loadPublicReleases();cachedReleases=await loadCollection('releases',currentProfile);renderWebReleaseList();renderDashboard(currentProfile,cachedReleases,cachedContracts);webReleaseFormPanel.classList.add('hidden');webReleaseListPanel.classList.remove('hidden');}
@@ -723,6 +734,21 @@ contractAdminForm?.addEventListener('submit',async e=>{
 });
 contractDeleteBtn?.addEventListener('click',async()=>{const id=$('contractOriginalId').value.trim();if(!id||currentProfile?.role!=='admin')return;if(!confirm('¿Eliminar este contrato de Firestore?'))return;contractDeleteBtn.disabled=true;try{await deleteDoc(doc(db,'contracts',id));cachedContracts=await loadCollection('contracts',currentProfile);renderContractAdminList();renderDashboard(currentProfile,cachedReleases,cachedContracts);contractFormPanel.classList.add('hidden');contractListPanel.classList.remove('hidden')}catch(err){contractFormStatus.textContent='ERROR: '+(err?.message||err);contractFormStatus.className='web-status err'}finally{contractDeleteBtn.disabled=false}});
 
+
+// Public profiles are separate from Authentication users and private portal data.
+const publicArtistManager=mountPublicArtists($('publicArtistManager'),{
+  isAdmin:()=>currentProfile?.role==='admin' && currentProfile?.active===true,
+  list:async()=>{const snap=await getDocs(collection(db,'publicArtists'));cachedPublicArtists=snap.docs.map(d=>({...d.data(),id:d.id}));return cachedPublicArtists;},
+  save:async(data,isNew)=>{
+    if(currentProfile?.role!=='admin'||currentProfile?.active!==true)throw new Error('Acceso administrativo requerido.');
+    if(['localhost','127.0.0.1'].includes(location.hostname))throw new Error('Copia local: guardado real desactivado. Usá preview.html para la demostración.');
+    const ref=doc(db,'publicArtists',data.id);const previous=await getDoc(ref);
+    if(isNew && previous.exists())throw new Error('El ID ya existe.');
+    if(previous.exists() && previous.data().slug!==data.slug)throw new Error('No se puede cambiar la URL estable.');
+    const {id,...publicFields}=data;
+    await setDoc(ref,{...publicFields,updatedAt:serverTimestamp()});
+  }
+});
 
 </script>
 </body>
