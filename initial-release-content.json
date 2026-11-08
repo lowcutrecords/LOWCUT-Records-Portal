@@ -1,0 +1,47 @@
+[
+  {
+    "id": "menta",
+    "releaseType": "single",
+    "genre": "Rock alternativo",
+    "descriptionEs": "Menta es el sencillo debut de LACK, banda de rock alternativo de Curuzú Cuatiá, Corrientes, integrada por Franco Perrone y Benito González. Publicado el 23 de octubre de 2026 por LOWCUT// Records, presenta al dúo dentro de la escena independiente argentina.\n\nEl lanzamiento abre una nueva etapa para un proyecto construido alrededor de la guitarra, la composición y la producción musical. Su identidad visual nostálgica e introspectiva acompaña el universo artístico que la banda comienza a desarrollar.",
+    "descriptionEn": "Menta is the debut single by LACK, an alternative rock band from Curuzú Cuatiá, Corrientes, formed by Franco Perrone and Benito González. Released on 23 October 2026 through LOWCUT// Records, it introduces the duo to Argentina’s independent music scene.\n\nThe release marks a new chapter for a project built around guitar, songwriting and music production. Its nostalgic, introspective visual identity accompanies the artistic world the band is beginning to develop.",
+    "creditsEs": "Interpretación, producción y composición: LACK. Integrantes: Franco Perrone y Benito González. Sello: LOWCUT// Records.",
+    "creditsEn": "Performance, production and songwriting: LACK. Members: Franco Perrone and Benito González. Label: LOWCUT// Records."
+  },
+  {
+    "id": "closetoyou",
+    "releaseType": "single",
+    "genre": "Ambient Trap",
+    "descriptionEs": "Close To You es un single de Zanx editado por LOWCUT// Records. La ficha entregada al sello identifica el lanzamiento como ambient trap, una referencia específica para ubicarlo dentro de su catálogo.\n\nForma parte del trabajo del productor y beatmaker argentino, cuyo proyecto conecta influencias de trap, phonk y música experimental. En esta página podés escuchar un fragmento de la grabación y acceder a sus plataformas oficiales.",
+    "descriptionEn": "Close To You is a single by Zanx released through LOWCUT// Records. The release information supplied to the label identifies its genre as ambient trap, placing it within a specific part of his catalogue.\n\nIt forms part of the Argentine producer and beatmaker’s work, a project connecting influences from trap, phonk and experimental music. This page includes an audio excerpt and links to the official streaming platforms.",
+    "creditsEs": "Artista principal: Zanx. Sello: LOWCUT// Records.",
+    "creditsEn": "Primary artist: Zanx. Label: LOWCUT// Records."
+  },
+  {
+    "id": "singularity",
+    "releaseType": "single",
+    "genre": "Trap",
+    "descriptionEs": "Singularity reúne a Dro y Fayre en un single de trap publicado por LOWCUT// Records. Dro figura como artista principal y Fayre como colaboración en la ficha del lanzamiento.\n\nLa canción se incorpora al trabajo conjunto de dos artistas de Santa Fe: Dro desarrolla su proyecto desde el trap y los sonidos urbanos experimentales, mientras Fayre trabaja en la producción de música electrónica. La colaboración conecta ambos proyectos dentro del catálogo del sello.",
+    "descriptionEn": "Singularity brings Dro and Fayre together on a trap single released through LOWCUT// Records. Its release information lists Dro as the primary artist and Fayre as the featured collaborator.\n\nThe track forms part of the joint work of two artists from Santa Fe: Dro develops his project through trap and experimental urban sounds, while Fayre works in electronic music production. Their collaboration connects both projects within the label’s catalogue.",
+    "creditsEs": "Artista principal: Dro. Colaboración: Fayre. Sello: LOWCUT// Records.",
+    "creditsEn": "Primary artist: Dro. Featured artist: Fayre. Label: LOWCUT// Records."
+  },
+  {
+    "id": "letmego",
+    "releaseType": "single",
+    "genre": "Trap / Hip-hop instrumental",
+    "descriptionEs": "Let Me Go es un single de Zanx publicado por LOWCUT// Records. La ficha original del artista lo sitúa en el trap; la información de distribución lo clasifica como hip-hop/rap instrumental.\n\nEn los créditos de distribución, el artista figura como Prod.Zanx en interpretación principal, producción, composición musical y arreglos. El lanzamiento forma parte del catálogo de un productor argentino que trabaja con influencias de trap, phonk y música experimental.",
+    "descriptionEn": "Let Me Go is a single by Zanx released through LOWCUT// Records. The artist’s original release information places it within trap, while the distribution metadata classifies it as instrumental hip-hop/rap.\n\nThe distribution credits list the artist as Prod.Zanx for the primary performance, production, music composition and arrangement. The release forms part of the catalogue of an Argentine producer working with influences from trap, phonk and experimental music.",
+    "creditsEs": "Artista principal, producción, composición musical y arreglos: Prod.Zanx. Sello: LOWCUT// Records.",
+    "creditsEn": "Primary artist, production, music composition and arrangement: Prod.Zanx. Label: LOWCUT// Records."
+  },
+  {
+    "id": "lasthourep",
+    "releaseType": "ep",
+    "genre": "",
+    "descriptionEs": "Last Hour reúne a Dro y Fayre en un lanzamiento de LOWCUT// Records presentado como un EP de versiones de una misma canción. Junto a la versión original, el proyecto incluye tratamientos como sped up y slowed + reverb.\n\nEstas variantes permiten recorrer el mismo tema con cambios de velocidad y espacio sonoro. El lanzamiento se incorpora al trabajo compartido de ambos artistas dentro del catálogo del sello.",
+    "descriptionEn": "Last Hour brings Dro and Fayre together on a LOWCUT// Records release presented as an EP of alternate versions of the same song. Alongside the original, the project includes treatments such as sped up and slowed + reverb.\n\nThese variants revisit the same track through changes in speed and sonic space. The release forms part of both artists’ shared work within the label’s catalogue.",
+    "creditsEs": "Artistas: Dro y Fayre. Sello: LOWCUT// Records.",
+    "creditsEn": "Artists: Dro and Fayre. Label: LOWCUT// Records."
+  }
+]
