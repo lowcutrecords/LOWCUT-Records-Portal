@@ -1,6 +1,16 @@
 // Receives a Firestore adapter from the authenticated portal; contains no credentials.
 export const artistKey=value=>String(value||'').replace(/[Λλ]/g,'a').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function parseOfficialLinks(value){
+  return String(value||'').split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+    const at=line.indexOf('|'),raw=(at<0?line:line.slice(at+1)).trim();
+    let url;try{url=new URL(raw);}catch{throw new Error('Pegá una URL HTTPS válida, una por línea.');}
+    if(url.protocol!=='https:')throw new Error('Los perfiles oficiales deben usar HTTPS.');
+    const host=url.hostname.replace(/^www\./,'');
+    const names={'open.spotify.com':'Spotify','instagram.com':'Instagram','youtube.com':'YouTube','youtu.be':'YouTube','soundcloud.com':'SoundCloud','tiktok.com':'TikTok','bandcamp.com':'Bandcamp'};
+    return {label:(at<0?(names[host]||host):line.slice(0,at).trim())||host,url:url.href};
+  });
+}
 export function publicArtist(input){
   const text=(key,max=10000)=>String(input[key]||'').trim().slice(0,max);
   const id=text('id',100),slug=text('slug',120)||artistKey(id);
@@ -28,11 +38,11 @@ export function mountPublicArtists(container,api){
   <div class="field"><label>NOMBRE ARTÍSTICO *<input name="name" required maxlength="120"></label></div>
   <div class="field"><label>UBICACIÓN<input name="location" maxlength="240"></label></div>
   <div class="field full"><label>GÉNEROS (SEPARADOS POR COMA)<input name="genres"></label></div>
-  <div class="field full"><label>IMAGEN *<input name="imagePath" required placeholder="assets/artist-nombre.png o https://..."></label><div class="web-help">La imagen debe existir. El portal actual selecciona archivos existentes; no sube archivos nuevos.</div></div>
+  <div class="field full"><label>IMAGEN *<input name="imagePath" required placeholder="assets/artist-nombre.webp o https://..."></label><div class="web-help">La imagen debe existir. El portal actual selecciona archivos existentes; no sube archivos nuevos.</div></div>
   <div class="field"><label>SUBTÍTULO EN<input name="taglineEn"></label></div><div class="field"><label>SUBTÍTULO ES<input name="taglineEs"></label></div>
   <div class="field full"><label>BIOGRAFÍA EN INGLÉS *<textarea name="bioEn" rows="5" required maxlength="10000"></textarea></label></div>
   <div class="field full"><label>BIOGRAFÍA EN ESPAÑOL<textarea name="bioEs" rows="5" maxlength="10000"></textarea></label></div>
-  <div class="field full"><label>PERFILES OFICIALES (UNO POR LÍNEA: NOMBRE | URL HTTPS)<textarea name="links" rows="3" placeholder="Spotify | https://open.spotify.com/artist/..."></textarea></label></div>
+  <div class="field full"><label>PERFILES OFICIALES (UNA URL HTTPS POR LÍNEA; NOMBRE | URL TAMBIÉN SIRVE)<textarea name="links" rows="3" placeholder="Spotify | https://open.spotify.com/artist/..."></textarea></label></div>
   <div class="field"><label>ORDEN<input name="displayOrder" type="number" min="0" value="1"></label></div>
   <div class="field"><label class="web-check"><input name="visible" type="checkbox"> VISIBLE EN WEB</label></div></div>
   <div class="web-form-actions"><button class="web-btn" data-save type="submit">GUARDAR PERFIL PÚBLICO</button><button class="web-btn alt" data-cancel type="button">CANCELAR</button></div></form>`;
@@ -78,7 +88,7 @@ export function mountPublicArtists(container,api){
       const input=Object.fromEntries(new FormData(form));input.visible=field('visible').checked;
       input.aliases=[...(editing?.aliases||[]),...(editing?[editing.name]:[])];
       input.genres=field('genres').value.split(',');
-      input.links=field('links').value.split('\n').filter(x=>x.trim()).map(line=>{const at=line.indexOf('|');if(at<1)throw new Error('Usá Nombre | URL para cada perfil.');return {label:line.slice(0,at).trim(),url:line.slice(at+1).trim()};});
+      input.links=parseOfficialLinks(field('links').value);
       const data=publicArtist(input);
       if(!editing && rows.some(a=>a.id===data.id||a.slug===data.slug))throw new Error('Ya existe ese artista o URL. Usá Editar perfil.');
       if(rows.some(a=>a.id!==data.id&&a.slug===data.slug))throw new Error('La URL pertenece a otro artista.');

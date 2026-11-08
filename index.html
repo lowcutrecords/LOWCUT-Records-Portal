@@ -72,6 +72,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
 
 </style>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<link rel="stylesheet" href="portal-shell.css">
 </head>
 <body>
 <header class="topbar">
@@ -193,6 +194,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
   </section>
 
   <section id="publicArtistManager" class="web-manager hidden"></section>
+<section id="publicPartnerManager" class="web-manager hidden"></section>
 
   <section id="loginActivitySection" class="portal-section hidden">
     <div class="section-head"><div><div class="index">00 / SECURITY</div><h2 data-i18n="loginActivity">REGISTROS DE ACCESO</h2></div><p class="section-note" data-i18n="loginActivityNote">Historial de inicios de sesión registrados por el portal.</p></div>
@@ -272,6 +274,8 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import {mountPortalShell} from './portal-shell.mjs';
+import {mountPublicPartners} from './public-partners.mjs';
 import { mountPublicArtists } from './public-artists.mjs';
 import { getFirestore, doc, getDoc, collection, getDocs, query, where, addDoc, setDoc, deleteDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
@@ -421,6 +425,7 @@ onAuthStateChanged(auth,async(user)=>{
       try{cachedAdminUsers=await loadAdminUsers();}catch(e){console.warn('USERS ERROR',e);cachedAdminUsers=[];}
       try{cachedPublicReleases=await loadPublicReleases();}catch(e){console.warn('PUBLIC RELEASES ERROR',e);cachedPublicReleases=[];}
       await publicArtistManager.refresh();
+      await publicPartnerManager.refresh();
       renderWebReleaseList();
     } else {cachedLoginLogs=[];cachedAdminUsers=[];cachedPublicReleases=[];}
     renderDashboard(profile,releases,contracts);
@@ -471,10 +476,12 @@ function renderDashboard(profile,releases,contracts){
   $('adminDashboardSection').classList.toggle('hidden',profile.role!=='admin');
   $('webReleaseManager').classList.toggle('hidden',profile.role!=='admin');
   $('publicArtistManager').classList.toggle('hidden',profile.role!=='admin');
+  $('publicPartnerManager').classList.toggle('hidden',profile.role!=='admin');
   $('contractManager')?.classList.toggle('hidden',profile.role!=='admin');
   if(profile.role==='admin') renderAdminDashboard(releases,contracts,cachedAdminUsers);
   $('releaseCount').textContent=releases.length;$('contractCount').textContent=contracts.length;$('presaveCount').textContent=releases.filter(r=>safeUrl(r.presave)).length;
   renderReleases(releases);renderContracts(contracts);
+  portalShell.refresh();
 }
 function renderLoginLogs(items){
   const box=$('loginLogsList');
@@ -749,6 +756,19 @@ const publicArtistManager=mountPublicArtists($('publicArtistManager'),{
     await setDoc(ref,{...publicFields,updatedAt:serverTimestamp()});
   }
 });
+
+const publicPartnerManager=mountPublicPartners($('publicPartnerManager'),{
+  isAdmin:()=>currentProfile?.role==='admin'&&currentProfile?.active===true,
+  list:async()=>{const snap=await getDocs(collection(db,'publicPartners'));return snap.docs.map(d=>({...d.data(),id:d.id}));},
+  save:async(data,isNew)=>{
+    if(currentProfile?.role!=='admin'||currentProfile?.active!==true)throw new Error('Acceso administrativo requerido.');
+    if(['localhost','127.0.0.1'].includes(location.hostname))throw new Error('Copia local: guardado real desactivado.');
+    const ref=doc(db,'publicPartners',data.id),previous=await getDoc(ref);
+    if(isNew&&previous.exists())throw new Error('El ID ya existe.');
+    const {id,...fields}=data;await setDoc(ref,{...fields,updatedAt:serverTimestamp()});
+  }
+});
+const portalShell=mountPortalShell(dashboardView,()=>currentProfile);
 
 </script>
 </body>
