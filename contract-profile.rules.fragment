@@ -1,0 +1,100 @@
+function contractActiveUser(){return request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && myProfile().data.active == true;}
+function contractAdmin(){return contractActiveUser() && myProfile().data.role == 'admin';}
+function contractAuthorized(){return contractActiveUser() && request.auth.uid in resource.data.get('authorizedUids',[]);}
+// Replace the existing users, artists and contracts matches with this fragment.
+// Keep all other collection rules. Uses the existing myProfile() function.
+function contractPending(c) { return c.status in ['pending','pending-signature']; }
+function verifiedInvite(c) {
+  return request.auth != null && request.auth.token.email_verified == true
+    && (!exists(/databases/$(database)/documents/users/$(request.auth.uid)) || myProfile().data.active == true)
+    && c.get('invitationEmail','') == request.auth.token.email;
+}
+function openInvitation(c) { return c.get('active',true) == true && contractPending(c); }
+function validProfileName(n) { return n is string && n.size() > 0 && n.size() <= 150; }
+function registrationValid(uid) {
+  let p = request.resource.data;
+  let c = get(/databases/$(database)/documents/contracts/$(p.registrationContractId)).data;
+  let artistId = c.get('artistId','') == '' ? uid : c.artistId;
+  let artist = getAfter(/databases/$(database)/documents/artists/$(artistId)).data;
+  return request.auth != null && request.auth.uid == uid && verifiedInvite(c) && openInvitation(c)
+    && p.keys().hasOnly(['active','artistId','email','name','role','registrationContractId'])
+    && p.keys().hasAll(['active','artistId','email','name','role','registrationContractId'])
+    && p.role == 'artist' && p.active == true && p.artistId == artistId
+    && p.email == request.auth.token.email && validProfileName(p.name)
+    && artist.active == true && artist.name == p.name;
+}
+match /users/{uid} {
+  allow read: if request.auth != null && request.auth.uid == uid || contractAdmin();
+  allow create: if contractAdmin() || registrationValid(uid);
+  allow update: if contractAdmin() || (contractActiveUser() && request.auth.uid == uid
+    && resource.data.role == 'artist'
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+    && validProfileName(request.resource.data.name));
+  allow delete: if contractAdmin();
+}
+function ownArtistAfter(artistId) {
+  let p = getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+  return request.auth != null && request.auth.token.email_verified == true
+    && p.active == true && p.role == 'artist' && p.artistId == artistId;
+}
+match /artists/{artistId} {
+  allow read: if contractAdmin() || (contractActiveUser() && myProfile().data.artistId == artistId);
+  allow create: if contractAdmin() || (ownArtistAfter(artistId)
+    && request.resource.data.keys().hasOnly(['active','name'])
+    && request.resource.data.active == true && validProfileName(request.resource.data.name));
+  allow update: if contractAdmin() || (ownArtistAfter(artistId) && resource.data.active == true
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+    && validProfileName(request.resource.data.name));
+  allow delete: if contractAdmin();
+}
+function artistSignatureValid() {
+  let c = resource.data;
+  let d = request.resource.data;
+  let p = myProfile().data;
+  let uid = request.auth.uid;
+  return contractActiveUser() && p.role == 'artist' && request.auth.token.email_verified == true
+    && openInvitation(c) && (contractAuthorized() || verifiedInvite(c))
+    && (c.get('artistId','') == '' || c.artistId == p.artistId)
+    && get(/databases/$(database)/documents/artists/$(p.artistId)).data.active == true
+    && d.diff(c).affectedKeys().hasOnly(['status','artistId','artistIds','authorizedUids','signedAt','signedAtTimestamp','signedBy','signature','releaseData','updatedAt'])
+    && d.status == 'signed' && d.signedBy == uid && d.artistId == p.artistId && d.artistIds == [p.artistId]
+    && d.authorizedUids.toSet() == c.get('authorizedUids',[]).toSet().union([uid].toSet())
+    && d.signedAt is string && d.signedAt.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+    && d.signedAtTimestamp == request.time && d.updatedAt == request.time
+    && d.signature.keys().hasOnly(['name','legalName','email','contactEmail','language','acceptedText','pageRevision'])
+    && validProfileName(d.signature.name) && d.signature.name == d.signature.legalName
+    && d.signature.email == request.auth.token.email && d.signature.language in ['es','en']
+    && d.signature.pageRevision == c.get('pageRevision',1)
+    && d.signature.acceptedText is string && d.signature.acceptedText.size() > 0 && d.signature.acceptedText.size() <= 100000
+    && (c.get('pageContent',{}).get(d.signature.language,'') == '' || d.signature.acceptedText == c.pageContent[d.signature.language])
+    && d.releaseData is map && d.releaseData.legal_name == d.signature.legalName
+    && d.releaseData.electronic_signature == d.signature.name
+    && d.releaseData.signature_date == d.signedAt && d.releaseData.email == d.signature.contactEmail
+    && d.releaseData.rights_confirm == 'Sí' && d.releaseData.third_party_confirm == 'Sí' && d.releaseData.fraud_confirm == 'Sí'
+    && d.releaseData.contract_accept == 'Sí' && d.releaseData.signature_confirm == 'Sí';
+}
+function claimInvitationValid(){
+  let c=resource.data;
+  let d=request.resource.data;
+  let uid=request.auth.uid;
+  let p=getAfter(/databases/$(database)/documents/users/$(uid)).data;
+  return request.auth != null && request.auth.token.email_verified == true
+    && openInvitation(c) && (verifiedInvite(c)||contractAuthorized())
+    && p.active == true && p.role == 'artist'
+    && (c.get('artistId','') == '' || c.artistId == p.artistId)
+    && getAfter(/databases/$(database)/documents/artists/$(p.artistId)).data.active == true
+    && d.diff(c).affectedKeys().hasOnly(['artistId','artistIds','authorizedUids','updatedAt'])
+    && d.artistId == p.artistId && d.artistIds == [p.artistId]
+    && d.authorizedUids.toSet() == c.get('authorizedUids',[]).toSet().union([uid].toSet())
+    && d.updatedAt == request.time;
+}
+match /contracts/{contractId} {
+  allow get: if contractAdmin() || contractAuthorized() || verifiedInvite(resource.data);
+  allow list: if contractAdmin() || contractAuthorized();
+  allow create: if contractAdmin();
+  allow update: if (contractAdmin() && (resource.data.status != 'signed'
+    || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active','updatedAt'])))
+    || claimInvitationValid() || artistSignatureValid();
+  allow delete: if contractAdmin() && resource.data.status != 'signed';
+}
+
