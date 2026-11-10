@@ -21,6 +21,10 @@ try{
     const d=ctx.firestore();await setDoc(doc(d,'users','admin'),{active:true,role:'admin'});
     await setDoc(doc(d,'contracts','invite'),contract);await setDoc(doc(d,'contracts','second'),{...contract});
     await setDoc(doc(d,'contracts','disabled'),{...contract,active:false});
+    await setDoc(doc(d,'contracts','prueba2sdfsfda3gmailcom'),{...contract,title:'prueba2',status:'signed'});
+    await setDoc(doc(d,'contracts','prueba2sdfsfda3gmailcomv1794345602835'),{...contract,title:'prueba2',status:'signed'});
+    await setDoc(doc(d,'contracts','real-signed'),{...contract,title:'prueba2',status:'signed'});
+    await setDoc(doc(d,'contracts','prueba2other'),{...contract,title:'prueba2',status:'signed'});
   });
   await pass(getDoc(doc(db,'contracts','invite')));
   await fail(getDoc(doc(wrong,'contracts','invite')));
@@ -51,6 +55,11 @@ try{
   await fail(updateDoc(doc(db,'contracts','invite'),sign));
   await fail(updateDoc(doc(admin,'contracts','invite'),{pageContent:{es:'rewrite'}}));
   await fail(deleteDoc(doc(admin,'contracts','invite')));
+  await fail(deleteDoc(doc(db,'contracts','prueba2sdfsfda3gmailcom')));
+  await fail(deleteDoc(doc(admin,'contracts','real-signed')));
+  await fail(deleteDoc(doc(admin,'contracts','prueba2other')));
+  await pass(deleteDoc(doc(admin,'contracts','prueba2sdfsfda3gmailcom')));
+  await pass(deleteDoc(doc(admin,'contracts','prueba2sdfsfda3gmailcomv1794345602835')));
   const labelSignature={name:'Label Representative',uid:'admin',email:'admin@example.com',statement:'Declaro que actúo como representante autorizado de LOWCUT// Records y acepto este contrato en nombre del sello.',signedAtTimestamp:serverTimestamp()};
   await fail(updateDoc(doc(db,'contracts','invite'),{labelSignature:{...labelSignature,uid:'new',email:'new@example.com'},updatedAt:serverTimestamp()}));
   await fail(updateDoc(doc(admin,'contracts','invite'),{labelSignature:{...labelSignature,statement:''},updatedAt:serverTimestamp()}));

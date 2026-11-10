@@ -124,6 +124,8 @@ match /contracts/{contractId} {
       || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active','updatedAt'])
       || labelCountersignValid())
     : (claimInvitationValid() || artistSignatureValid());
-  allow delete: if contractAdmin() && resource.data.status != 'signed';
+  allow delete: if contractAdmin() && (resource.data.status != 'signed'
+    || (resource.data.title == 'prueba2'
+      && contractId in ['prueba2sdfsfda3gmailcom','prueba2sdfsfda3gmailcomv1794345602835']));
 }
 

@@ -1,6 +1,8 @@
 export const TEMPLATE_URL='https://lowcutrecords.github.io/LOWCUT-Contratos-Template/';
 export const pending = c => ['pending','pending-signature'].includes(c.status);
 export const available = c => c.active !== false;
+// Explicit cleanup exception for the owner's two signed prueba2 records.
+export const disposableTestContract = c => c?.title==='prueba2' && ['prueba2sdfsfda3gmailcom','prueba2sdfsfda3gmailcomv1794345602835'].includes(c.id);
 export function signatureUrl(id){const url=new URL(TEMPLATE_URL);url.searchParams.set('contract',id);return url.href;}
 export function buildContract(previous, input, id){
   const email=String(input.invitationEmail||'').trim().toLowerCase();
