@@ -1,3 +1,4 @@
+import {dateKey,minimumReleaseDate,addCalendarDays} from './contract-dates.mjs';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
@@ -37,17 +38,25 @@ try{
   await fail(updateDoc(doc(db,'users','new'),{role:'admin'}));
   await fail(updateDoc(doc(db,'users','new'),{artistId:'someone-else'}));
   await fail(updateDoc(doc(db,'artists','new'),{active:false}));
-  const sign={status:'signed',artistId:'new',artistIds:['new'],authorizedUids:['new'],signedAt:'2026-11-10',signedAtTimestamp:serverTimestamp(),signedBy:'new',updatedAt:serverTimestamp(),
+  const sign={status:'signed',artistId:'new',artistIds:['new'],authorizedUids:['new'],signedAt:dateKey(),signedAtTimestamp:serverTimestamp(),signedBy:'new',updatedAt:serverTimestamp(),
     signature:{name:'Legal Name',legalName:'Legal Name',email:'new@example.com',contactEmail:'contact@example.com',language:'es',acceptedText:'Accepted contract',pageRevision:1},
-    releaseData:{legal_name:'Legal Name',electronic_signature:'Legal Name',email:'contact@example.com',signature_date:'2026-11-10',contract_accept:'Sí',signature_confirm:'Sí',rights_confirm:'Sí',third_party_confirm:'Sí',fraud_confirm:'Sí'}};
+    releaseData:{legal_name:'Legal Name',electronic_signature:'Legal Name',email:'contact@example.com',signature_date:dateKey(),release_date:minimumReleaseDate(new Date()),contract_accept:'Sí',signature_confirm:'Sí',rights_confirm:'Sí',third_party_confirm:'Sí',fraud_confirm:'Sí'}};
   await fail(updateDoc(doc(db,'contracts','disabled'),sign));
   await fail(updateDoc(doc(db,'contracts','invite'),{...sign,signature:{...sign.signature,pageRevision:2}}));
   await fail(updateDoc(doc(db,'contracts','invite'),{...sign,pageContent:{es:'tampered'}}));
   await fail(updateDoc(doc(db,'contracts','invite'),{...sign,authorizedUids:['new','other']}));
+  await fail(updateDoc(doc(db,'contracts','invite'),{...sign,releaseData:{...sign.releaseData,release_date:addCalendarDays(minimumReleaseDate(new Date()),-1)}}));
+  await fail(updateDoc(doc(db,'contracts','invite'),{...sign,signedAt:addCalendarDays(dateKey(),-1),releaseData:{...sign.releaseData,signature_date:addCalendarDays(dateKey(),-1)}}));
   await pass(updateDoc(doc(db,'contracts','invite'),sign));
   await fail(updateDoc(doc(db,'contracts','invite'),sign));
   await fail(updateDoc(doc(admin,'contracts','invite'),{pageContent:{es:'rewrite'}}));
   await fail(deleteDoc(doc(admin,'contracts','invite')));
+  const labelSignature={name:'Label Representative',uid:'admin',email:'admin@example.com',statement:'Declaro que actúo como representante autorizado de LOWCUT// Records y acepto este contrato en nombre del sello.',signedAtTimestamp:serverTimestamp()};
+  await fail(updateDoc(doc(db,'contracts','invite'),{labelSignature:{...labelSignature,uid:'new',email:'new@example.com'},updatedAt:serverTimestamp()}));
+  await fail(updateDoc(doc(admin,'contracts','invite'),{labelSignature:{...labelSignature,statement:''},updatedAt:serverTimestamp()}));
+  await pass(updateDoc(doc(admin,'contracts','invite'),{labelSignature,updatedAt:serverTimestamp()}));
+  assert.equal((await getDoc(doc(admin,'contracts','invite'))).data().signature.name,'Legal Name');
+  await fail(updateDoc(doc(admin,'contracts','invite'),{labelSignature:{...labelSignature,name:'Replacement'},updatedAt:serverTimestamp()}));
   await pass(updateDoc(doc(admin,'contracts','invite'),{active:false,updatedAt:serverTimestamp()}));
   await pass(updateDoc(doc(admin,'users','new'),{active:false}));
   await fail(getDoc(doc(db,'contracts','second')));
