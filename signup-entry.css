@@ -1,0 +1,8 @@
+[hidden]{display:none!important}
+.portal-access-stack{width:min(520px,100%)}
+.portal-access-stack .login-card{width:100%}
+.portal-access-tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid #111;border-bottom:0}
+.portal-access-tabs button{padding:16px 8px;min-height:48px;background:#fff;color:#666;border:0;font:700 10px 'Courier New',monospace;letter-spacing:1px;cursor:pointer}
+.portal-access-tabs button[aria-selected=true]{background:#111;color:#fff}
+.portal-registration-note{border:1px solid #ccc;background:#f7f6f2;padding:16px;margin:0 0 24px;color:#555;font-size:12px;line-height:1.6}
+
