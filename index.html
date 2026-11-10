@@ -173,6 +173,10 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
           <div class="field"><label>TÍTULO *</label><input id="webTitle" required placeholder="INSΛNE V2"></div>
           <div class="field full"><label>ARTISTAS *</label><input id="webArtists" required placeholder="Zanx, Fayre"><div class="web-help">Separá varios artistas con coma.</div></div>
           <div class="field"><label>FECHA *</label><input id="webDate" required type="date"></div>
+          <div class="field"><label for="contractInviteEmail">EMAIL DE INVITACIÓN</label><input id="contractInviteEmail" type="email"><div class="help">Para un artista nuevo, dejá el perfil sin seleccionar e ingresá su email. Se creará su perfil al registrarse.</div></div>
+          <div class="field"><label for="contractActive">DISPONIBILIDAD</label><select id="contractActive"><option value="true">HABILITADO</option><option value="false">DESACTIVADO</option></select></div>
+          <div class="field full"><label for="contractPageEs">TEXTO DE LA PÁGINA · ESPAÑOL</label><textarea id="contractPageEs" rows="12" maxlength="40000"></textarea><div class="help">Texto completo del contrato, sin HTML. Vacío conserva el texto del template. Un contrato firmado requiere una nueva versión para cambiarlo.</div></div>
+          <div class="field full"><label for="contractPageEn">TEXTO DE LA PÁGINA · INGLÉS</label><textarea id="contractPageEn" rows="12" maxlength="40000"></textarea></div>
           <div class="field"><label>ESTADO *</label><select id="webStatus" required><option value="coming_soon">COMING SOON</option><option value="presave">PRE-SAVE</option><option value="released">LISTEN NOW</option><option value="hidden">HIDDEN</option></select></div>
           <div class="field full"><label>LINK PÚBLICO / SMARTLINK / PRE-SAVE</label><input id="webPublicLink" type="url" placeholder="https://..."></div>
           <div class="field full"><label for="webDescription">DESCRIPCIÓN PÚBLICA EN INGLÉS</label><textarea id="webDescription" rows="5"></textarea></div><div class="field full"><label for="webDescriptionEs">DESCRIPCIÓN PÚBLICA EN ESPAÑOL</label><textarea id="webDescriptionEs" rows="5"></textarea></div><div class="field"><label for="webReleaseType">TIPO DE LANZAMIENTO</label><select id="webReleaseType"><option value="single">Single</option><option value="ep">EP / varias versiones</option><option value="album">Álbum</option></select></div><div class="field full"><button class="web-btn alt" id="loadReleaseContentDraft" type="button">CARGAR FICHA PREPARADA PARA REVISAR</button><div class="web-help">Completa campos vacíos de esta ficha. Revisá los datos y guardá para enviarlos a Firebase. No se publica al tocar este botón.</div></div><div class="field"><label>GÉNERO</label><input id="webGenre"></div><div class="field"><label for="webCredits">CRÉDITOS PÚBLICOS EN INGLÉS</label><textarea id="webCredits" rows="3"></textarea></div><div class="field"><label for="webCreditsEs">CRÉDITOS PÚBLICOS EN ESPAÑOL</label><textarea id="webCreditsEs" rows="3"></textarea></div><div class="field"><label>ORDEN</label><input id="webDisplayOrder" type="number" step="1" min="0" value="1"></div>
@@ -223,9 +227,9 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
         <input type="hidden" id="contractOriginalId">
         <div class="index" id="contractFormMode">NUEVO CONTRATO</div>
         <div class="contract-form-grid" style="margin-top:16px">
-          <div class="field"><label>ID INTERNO (AUTOMÁTICO)</label><input id="contractId" readonly placeholder="closetoyouzanx"><div class="contract-id-note">Automático, sin espacios ni guiones.</div></div>
+          <div class="field"><label>ID INTERNO (AUTOMÁTICO)</label><input id="contractId" readonly placeholder="closetoyouzanx"><div class="contract-id-note">Automático al crear. El ID se conserva al editar para mantener los enlaces.</div></div>
           <div class="field"><label>TÍTULO / LANZAMIENTO *</label><input id="contractTitle" required placeholder="CLOSE TO YOU"></div>
-          <div class="field"><label>ARTISTA / PERFIL *</label><select id="contractArtist" required><option value="">Seleccionar artista</option></select></div>
+          <div class="field"><label>ARTISTA / PERFIL EXISTENTE</label><select id="contractArtist"><option value="">Seleccionar artista</option></select></div>
           <div class="field"><label>ESTADO *</label><select id="contractStatus" required><option value="pending">PENDIENTE</option><option value="signed">FIRMADO</option></select></div>
           <div class="field"><label>FECHA DE FIRMA</label><input id="contractSignedAt" type="date"></div>
           <div class="field"><label>TIPO</label><input id="contractType" placeholder="release_contract" value="release_contract"></div>
@@ -238,7 +242,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
           <div class="media-library-note">Lee los PDF públicos guardados dentro de <b>assets/</b> del repo LOWCUT-Records-Portal y marca cuáles ya están usados.</div>
         </div>
 
-        <div class="contract-form-actions"><button id="contractSaveBtn" class="web-btn" type="submit">GUARDAR CONTRATO</button><button id="contractCancelBtn" class="web-btn alt" type="button">CANCELAR</button><button id="contractDeleteBtn" class="web-btn danger hidden" type="button">ELIMINAR CONTRATO</button></div>
+        <div class="contract-form-actions"><button id="contractSaveBtn" class="web-btn" type="submit">GUARDAR CONTRATO</button><button id="contractCancelBtn" class="web-btn alt" type="button">CANCELAR</button><button id="contractVersionBtn" class="web-btn alt hidden" type="button">CREAR NUEVA VERSIÓN</button><button id="contractDeleteBtn" class="web-btn danger hidden" type="button">ELIMINAR CONTRATO</button></div>
         <div id="contractFormStatus" class="web-status"></div>
       </form>
     </div>
@@ -272,12 +276,13 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
   </div>
 </div>
 <script type="module">
+import { buildContract, available, signatureUrl } from './contract-model.mjs';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import {mountPortalShell} from './portal-shell.mjs';
 import {mountPublicPartners} from './public-partners.mjs';
 import { mountPublicArtists } from './public-artists.mjs';
-import { getFirestore, doc, getDoc, collection, getDocs, query, where, addDoc, setDoc, deleteDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+import { getFirestore, doc, getDoc, collection, getDocs, query, where, addDoc, setDoc, deleteDoc, serverTimestamp, writeBatch, runTransaction, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDcLpCPu-3eNKtd3j8w51RdiqCvP6L8WlU',
@@ -298,6 +303,7 @@ const loginView=$('loginView'), loadingView=$('loadingView'), dashboardView=$('d
 const loginForm=$('loginForm'), loginBtn=$('loginBtn'), loginError=$('loginError'), logoutBtn=$('logoutBtn');
 const logoutModal=$('logoutModal'), cancelLogout=$('cancelLogout'), confirmLogout=$('confirmLogout');
 const metadataModal=$('metadataModal'), metadataClose=$('metadataClose');
+let stopContractWatch=()=>{};
 let cachedAdminUsers=[];
 let currentLang='es';
 let currentProfile=null;
@@ -388,6 +394,7 @@ metadataClose?.addEventListener('click',()=>metadataModal?.classList.add('hidden
 metadataModal?.addEventListener('click',(e)=>{if(e.target===metadataModal)metadataModal.classList.add('hidden')});
 
 onAuthStateChanged(auth,async(user)=>{
+  stopContractWatch();stopContractWatch=()=>{};
   if(!user){currentProfile=null;cachedReleases=[];cachedContracts=[];cachedLoginLogs=[];cachedPublicReleases=[];loginBtn.disabled=false;loginBtn.textContent=t('enter');loginForm.reset();if(window.grecaptcha&&grecaptcha.reset) grecaptcha.reset();show(loginView);return;}
   show(loadingView);
   const debug=[];
@@ -413,7 +420,7 @@ onAuthStateChanged(auth,async(user)=>{
     const hasDroContract=contracts.some(c=>c.id===droPendingId);
     if(!hasDroContract && (profile.role==='admin' || profile.artistId==='dro')){
       contracts.push({
-        id:droPendingId,
+        id:droPendingId,legacyPlaceholder:true,artistId:'dro',artistIds:['dro'],
         title:'SINGULARITY',
         status:'pending-signature',
         contractUrl:'https://lowcutrecords.github.io/LOWCUT-Contrato-Dro/'
@@ -429,6 +436,12 @@ onAuthStateChanged(auth,async(user)=>{
       renderWebReleaseList();
     } else {cachedLoginLogs=[];cachedAdminUsers=[];cachedPublicReleases=[];}
     renderDashboard(profile,releases,contracts);
+    const contractRef=collection(db,'contracts');
+    stopContractWatch=onSnapshot(profile.role==='admin'?contractRef:query(contractRef,where('authorizedUids','array-contains',user.uid)),snap=>{
+      if(auth.currentUser?.uid!==user.uid)return;
+      cachedContracts=snap.docs.map(d=>({...d.data(),id:d.id}));const legacy=contracts.find(c=>c.legacyPlaceholder);if(legacy&&!cachedContracts.some(c=>c.id===legacy.id))cachedContracts.push(legacy);renderContracts(cachedContracts);renderContractAdminList();$('contractCount').textContent=cachedContracts.length;
+      if(profile.role==='admin')renderAdminDashboard(cachedReleases,cachedContracts,cachedAdminUsers);
+    },err=>{console.error('CONTRACT WATCH',err);if(profile.role==='admin'){$('contractFormStatus').textContent='No se pudo actualizar el estado. Recargá el portal.';}});
     if(profile.role==='admin')renderLoginLogs(cachedLoginLogs);
     loginBtn.textContent=t('enter');
     show(dashboardView);
@@ -544,7 +557,7 @@ function showMetadata(r){
 window.showMetadata=showMetadata;
 
 function renderReleases(items){const box=$('releasesGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noReleases'))+'</div>';return;}box.innerHTML=items.map((r,i)=>{const p=safeUrl(r.presave);return `<article class="card"><div class="card-top"><span class="tag">RELEASE</span><span class="mono" style="font-size:10px;color:#777">${esc(r.id)}</span></div><h3>${esc(r.title||r.id)}</h3><p><b>${esc(t('releaseDate'))}:</b> ${esc(r.releaseDate||'—')}</p><div class="card-actions">${p?`<a href="${esc(p)}" target="_blank" rel="noopener">${esc(t('presave'))}</a>`:`<span class="disabled">${esc(t('noPresave'))}</span>`}<button class="metadata-btn" type="button" data-meta-index="${i}">${esc(t('viewMetadata'))}</button></div></article>`}).join('');box.querySelectorAll('[data-meta-index]').forEach(btn=>btn.addEventListener('click',()=>showMetadata(items[Number(btn.dataset.metaIndex)])));}
-function renderContracts(items){const box=$('contractsGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noContracts'))+'</div>';return;}box.innerHTML=items.map(c=>{const fallbackUrls={'close-to-you-zanx':'assets/zanx-close-to-you.pdf'};const url=safeUrl(c.contractUrl)||fallbackUrls[c.id]||'';const rawStatus=String(c.status||'').toLowerCase();const isPending=['pending','pending-signature'].includes(rawStatus);const status=rawStatus==='signed'?t('signed'):isPending?t('pendingSignature'):(c.status||'—');const actionLabel=isPending?t('signContract'):t('openContract');return `<article class="card"><div class="card-top"><span class="tag">${esc(t('contract'))}</span><span class="tag">${esc(status)}</span></div><h3>${esc(c.title||c.id)}</h3><p class="mono">${esc(c.id)}</p><div class="card-actions">${url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(actionLabel)}</a>`:`<span class="disabled">${esc(t('noFile'))}</span>`}</div></article>`}).join('')}
+function renderContracts(items){const box=$('contractsGrid');if(!items.length){box.innerHTML='<div class="empty">'+esc(t('noContracts'))+'</div>';return;}box.innerHTML=items.map(c=>{const fallbackUrls={'close-to-you-zanx':'assets/zanx-close-to-you.pdf'};const url=safeUrl(c.contractUrl)||fallbackUrls[c.id]||signatureUrl(c.id);const rawStatus=String(c.status||'').toLowerCase();const isPending=['pending','pending-signature'].includes(rawStatus);const status=(rawStatus==='signed'?t('signed'):isPending?t('pendingSignature'):(c.status||'—'))+(!available(c)?' · DESACTIVADO':'');const actionLabel=isPending&&available(c)?t('signContract'):t('openContract');return `<article class="card"><div class="card-top"><span class="tag">${esc(t('contract'))}</span><span class="tag">${esc(status)}</span></div><h3>${esc(c.title||c.id)}</h3><p class="mono">${esc(c.id)}</p><div class="card-actions">${url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(actionLabel)}</a>`:`<span class="disabled">${esc(t('noFile'))}</span>`}</div></article>`}).join('')}
 
 /* ===== ADMIN WEBSITE RELEASE MANAGER ===== */
 let cachedPublicArtists=[];
@@ -699,11 +712,12 @@ webDeleteBtn?.addEventListener('click',async()=>{
 const PORTAL_REPO='lowcutrecords/LOWCUT-Records-Portal';
 const PORTAL_PAGES_BASE='https://lowcutrecords.github.io/LOWCUT-Records-Portal/';
 let contractPdfFiles=[];
+let contractDraftId='',contractSourceId='';
 const contractCreateBtn=$('contractCreateBtn'),contractModifyBtn=$('contractModifyBtn'),contractListPanel=$('contractListPanel'),contractFormPanel=$('contractFormPanel'),contractAdminList=$('contractAdminList'),contractAdminForm=$('contractAdminForm'),contractSaveBtn=$('contractSaveBtn'),contractDeleteBtn=$('contractDeleteBtn'),contractFormStatus=$('contractFormStatus');
 function contractIdFromValues(title,artistId){return releaseIdFromTitle((title||'')+(artistId||''))}
 function populateContractArtists(selected=''){
   const sel=$('contractArtist');if(!sel)return;const rows=cachedAdminUsers.filter(u=>u.role==='artist').sort((a,b)=>String(a.name||a.artistId||'').localeCompare(String(b.name||b.artistId||'')));
-  sel.innerHTML='<option value="">Seleccionar artista</option>'+rows.map(u=>`<option value="${esc(u.artistId||'')}" data-uid="${esc(u.id||u.uid||'')}">${esc(u.name||u.artistId||u.email||'ARTISTA')}</option>`).join('');
+  sel.innerHTML='<option value="">Nuevo artista por email</option>'+rows.map(u=>`<option value="${esc(u.artistId||'')}" data-uid="${esc(u.id||u.uid||'')}">${esc(u.name||u.artistId||u.email||'ARTISTA')}</option>`).join('');
   if(selected)sel.value=selected;
 }
 function contractPdfUsage(url){return cachedContracts.filter(c=>String(c.contractUrl||'')===String(url||'')).map(c=>c.title||c.id)}
@@ -718,28 +732,56 @@ function renderContractPdfs(){
 }
 function renderContractAdminList(){
   if(!contractAdminList)return;if(!cachedContracts.length){contractAdminList.innerHTML='<div class="web-empty">Todavía no hay contratos en Firestore.</div>';return;}
-  contractAdminList.innerHTML=cachedContracts.map((c,i)=>`<article class="contract-admin-item"><div class="mini">${esc(String(c.status||'—').toUpperCase())}</div><h3>${esc(c.title||c.id)}</h3><p>${esc(Array.isArray(c.artistIds)?c.artistIds.join(' / '):(c.artistId||'—'))}<br>${esc(c.signedAt||c.signatureDate||'')}</p><button class="web-btn alt" type="button" data-contract-edit="${i}">EDITAR</button></article>`).join('');
+  contractAdminList.innerHTML=cachedContracts.map((c,i)=>`<article class="contract-admin-item"><div class="mini">${esc(c.status==='signed'?'FIRMADO':'PENDIENTE')} · ${available(c)?'HABILITADO':'DESACTIVADO'}</div><h3>${esc(c.title||c.id)}</h3><p>${esc(Array.isArray(c.artistIds)?c.artistIds.join(' / '):(c.artistId||'—'))}<br>${esc(c.signedAt||c.signatureDate||'')}<br>${esc(c.invitationEmail||'')}</p><button class="web-btn alt" type="button" data-contract-edit="${i}">EDITAR</button><a class="web-btn alt" href="${esc(safeUrl(c.contractUrl)||signatureUrl(c.id))}" target="_blank" rel="noopener">ABRIR PÁGINA</a></article>`).join('');
   contractAdminList.querySelectorAll('[data-contract-edit]').forEach(b=>b.addEventListener('click',()=>openContractEditor(cachedContracts[Number(b.dataset.contractEdit)])));
 }
 function resetContractForm(){
-  contractAdminForm.reset();$('contractOriginalId').value='';$('contractId').value='';$('contractType').value='release_contract';$('contractStatus').value='pending';$('contractFormMode').textContent='NUEVO CONTRATO';contractDeleteBtn.classList.add('hidden');contractFormStatus.textContent='';contractFormStatus.className='web-status';populateContractArtists();if(contractPdfFiles.length)renderContractPdfs();
+  contractDraftId='';contractSourceId='';$('contractVersionBtn').classList.add('hidden');contractAdminForm.reset();$('contractOriginalId').value='';$('contractId').value='';$('contractType').value='release_contract';$('contractStatus').value='pending';$('contractActive').value='true';$('contractFormMode').textContent='NUEVO CONTRATO';contractDeleteBtn.classList.add('hidden');contractFormStatus.textContent='';contractFormStatus.className='web-status';populateContractArtists();if(contractPdfFiles.length)renderContractPdfs();
 }
 function openContractCreator(){resetContractForm();contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});}
 function openContractEditor(c){
-  resetContractForm();$('contractOriginalId').value=c.id;$('contractTitle').value=c.title||'';const aid=Array.isArray(c.artistIds)?c.artistIds[0]:(c.artistId||'');populateContractArtists(aid);$('contractId').value=contractIdFromValues(c.title||c.id,aid)||c.id;$('contractStatus').value=['signed','pending'].includes(String(c.status||'').toLowerCase())?String(c.status).toLowerCase():(String(c.status||'').toLowerCase()==='pending-signature'?'pending':'pending');$('contractSignedAt').value=(c.signedAt||c.signatureDate||'').match(/^\d{4}-\d{2}-\d{2}$/)?(c.signedAt||c.signatureDate):'';$('contractType').value=c.type||'release_contract';$('contractUrl').value=c.contractUrl||'';$('contractFormMode').textContent='EDITAR / '+(c.title||c.id);contractDeleteBtn.classList.remove('hidden');contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');if(contractPdfFiles.length)renderContractPdfs();contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});
+  resetContractForm();$('contractVersionBtn').classList.remove('hidden');$('contractOriginalId').value=c.legacyPlaceholder?'':c.id;if(c.legacyPlaceholder)contractDraftId=c.id;$('contractTitle').value=c.title||'';const aid=Array.isArray(c.artistIds)?c.artistIds[0]:(c.artistId||'');populateContractArtists(aid);$('contractId').value=c.id;$('contractInviteEmail').value=c.invitationEmail||'';$('contractActive').value=available(c)?'true':'false';$('contractPageEs').value=c.pageContent?.es||'';$('contractPageEn').value=c.pageContent?.en||'';$('contractStatus').value=['signed','pending'].includes(String(c.status||'').toLowerCase())?String(c.status).toLowerCase():(String(c.status||'').toLowerCase()==='pending-signature'?'pending':'pending');$('contractSignedAt').value=(c.signedAt||c.signatureDate||'').match(/^\d{4}-\d{2}-\d{2}$/)?(c.signedAt||c.signatureDate):'';$('contractType').value=c.type||'release_contract';$('contractUrl').value=c.contractUrl||'';$('contractFormMode').textContent='EDITAR / '+(c.title||c.id);contractDeleteBtn.classList.remove('hidden');contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');if(contractPdfFiles.length)renderContractPdfs();contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function updateContractAutoId(){$('contractId').value=contractIdFromValues($('contractTitle').value,$('contractArtist').value)}
+function updateContractAutoId(){if(!$('contractOriginalId').value)$('contractId').value=contractDraftId||contractIdFromValues($('contractTitle').value,$('contractArtist').value||$('contractInviteEmail').value)}
+$('contractInviteEmail').addEventListener('input',updateContractAutoId);
+$('contractVersionBtn').addEventListener('click',()=>{
+  const source=$('contractOriginalId').value;if(!source)return;
+  contractSourceId=source;contractDraftId=source+'v'+Date.now();$('contractOriginalId').value='';$('contractId').value=contractDraftId;
+  $('contractStatus').value='pending';$('contractSignedAt').value='';$('contractActive').value='true';$('contractUrl').value=signatureUrl(contractDraftId);
+  contractDeleteBtn.classList.add('hidden');$('contractVersionBtn').classList.add('hidden');$('contractFormMode').textContent='NUEVA VERSIÓN / '+$('contractTitle').value;
+  contractFormStatus.textContent='Editá el nuevo texto y guardá. El contrato anterior se conserva.';
+});
 contractCreateBtn?.addEventListener('click',openContractCreator);
 contractModifyBtn?.addEventListener('click',()=>{contractFormPanel.classList.add('hidden');contractListPanel.classList.remove('hidden');renderContractAdminList();contractListPanel.scrollIntoView({behavior:'smooth',block:'start'});});
 $('contractCancelBtn')?.addEventListener('click',()=>{contractFormPanel.classList.add('hidden');contractListPanel.classList.add('hidden')});
 $('contractTitle')?.addEventListener('input',updateContractAutoId);$('contractArtist')?.addEventListener('change',updateContractAutoId);$('refreshContractPdfs')?.addEventListener('click',async()=>{try{await loadContractPdfs()}catch(err){$('contractPdfLibrary').innerHTML=`<div class="media-error">${esc(err?.message||err)}</div>`}});
 contractAdminForm?.addEventListener('submit',async e=>{
   e.preventDefault();if(currentProfile?.role!=='admin')return;contractSaveBtn.disabled=true;contractFormStatus.textContent='GUARDANDO...';contractFormStatus.className='web-status';
-  try{const title=$('contractTitle').value.trim();const artistId=$('contractArtist').value.trim();const targetId=contractIdFromValues(title,artistId);if(!targetId)throw new Error('No se pudo generar el ID.');const originalId=$('contractOriginalId').value.trim();const user=cachedAdminUsers.find(u=>u.role==='artist'&&String(u.artistId||'')===artistId);const uid=user?.id||user?.uid||'';const oldSnap=originalId?await getDoc(doc(db,'contracts',originalId)):null;const previous=oldSnap?.exists()?oldSnap.data():{};const data={...previous,title,artistId,artistIds:[artistId],authorizedUids:uid?[uid]:(Array.isArray(previous.authorizedUids)?previous.authorizedUids:[]),status:$('contractStatus').value,contractUrl:$('contractUrl').value.trim(),signedAt:$('contractSignedAt').value||'',type:$('contractType').value.trim()||'release_contract',updatedAt:serverTimestamp()};if(!oldSnap?.exists())data.createdAt=serverTimestamp();const batch=writeBatch(db);batch.set(doc(db,'contracts',targetId),data,{merge:true});if(originalId&&originalId!==targetId)batch.delete(doc(db,'contracts',originalId));await batch.commit();cachedContracts=await loadCollection('contracts',currentProfile);renderContractAdminList();renderDashboard(currentProfile,cachedReleases,cachedContracts);$('contractOriginalId').value=targetId;$('contractId').value=targetId;$('contractFormMode').textContent='EDITAR / '+title;contractDeleteBtn.classList.remove('hidden');contractFormStatus.textContent='CONTRATO GUARDADO · EL BOT SIGUE LEYENDO status.';contractFormStatus.className='web-status ok';}
+  try{
+    const originalId=$('contractOriginalId').value.trim();
+    const title=$('contractTitle').value.trim(),artistId=$('contractArtist').value.trim();
+    const targetId=originalId||contractDraftId||contractIdFromValues(title,artistId||$('contractInviteEmail').value);
+    if(!targetId)throw new Error('No se pudo generar el ID.');
+    const user=cachedAdminUsers.find(u=>u.role==='artist'&&String(u.artistId||'')===artistId);
+    await runTransaction(db,async tx=>{
+      const ref=doc(db,'contracts',targetId),snap=await tx.get(ref);
+      if(!originalId&&snap.exists())throw new Error('Ese contrato ya existe. Abrilo desde Modificar o usá otro título.');
+      if(originalId&&!snap.exists())throw new Error('El contrato fue eliminado. Actualizá el portal.');
+      const previous=snap.exists()?snap.data():{};
+      const data=buildContract(previous,{title,artistId,uid:user?.id||user?.uid||'',invitationEmail:$('contractInviteEmail').value,
+        active:$('contractActive').value==='true',status:$('contractStatus').value,signedAt:$('contractSignedAt').value,
+        type:$('contractType').value.trim(),contractUrl:$('contractUrl').value,pageEs:$('contractPageEs').value,pageEn:$('contractPageEn').value},targetId);
+      if(!originalId&&contractSourceId)data.sourceContractId=contractSourceId;
+      data.updatedAt=serverTimestamp();if(!snap.exists())data.createdAt=serverTimestamp();tx.set(ref,data,{merge:true});
+    });
+    cachedContracts=await loadCollection('contracts',currentProfile);renderContractAdminList();renderDashboard(currentProfile,cachedReleases,cachedContracts);
+    $('contractOriginalId').value=targetId;$('contractId').value=targetId;$('contractUrl').value=cachedContracts.find(c=>c.id===targetId)?.contractUrl||signatureUrl(targetId);
+    $('contractFormMode').textContent='EDITAR / '+title;contractDeleteBtn.classList.remove('hidden');contractFormStatus.textContent='CONTRATO GUARDADO';contractFormStatus.className='web-status ok';
+  }
   catch(err){console.error(err);contractFormStatus.textContent='ERROR: '+(err?.message||err);contractFormStatus.className='web-status err';}
   finally{contractSaveBtn.disabled=false;}
 });
-contractDeleteBtn?.addEventListener('click',async()=>{const id=$('contractOriginalId').value.trim();if(!id||currentProfile?.role!=='admin')return;if(!confirm('¿Eliminar este contrato de Firestore?'))return;contractDeleteBtn.disabled=true;try{await deleteDoc(doc(db,'contracts',id));cachedContracts=await loadCollection('contracts',currentProfile);renderContractAdminList();renderDashboard(currentProfile,cachedReleases,cachedContracts);contractFormPanel.classList.add('hidden');contractListPanel.classList.remove('hidden')}catch(err){contractFormStatus.textContent='ERROR: '+(err?.message||err);contractFormStatus.className='web-status err'}finally{contractDeleteBtn.disabled=false}});
+contractDeleteBtn?.addEventListener('click',async()=>{const id=$('contractOriginalId').value.trim();if(!id||currentProfile?.role!=='admin')return;if(!confirm('¿Eliminar este contrato de Firestore?'))return;contractDeleteBtn.disabled=true;try{await runTransaction(db,async tx=>{const ref=doc(db,'contracts',id);const snap=await tx.get(ref);if(snap.data()?.status==='signed')throw new Error('Un contrato firmado se conserva. Podés desactivarlo.');tx.delete(ref);});cachedContracts=await loadCollection('contracts',currentProfile);renderContractAdminList();renderDashboard(currentProfile,cachedReleases,cachedContracts);contractFormPanel.classList.add('hidden');contractListPanel.classList.remove('hidden')}catch(err){contractFormStatus.textContent='ERROR: '+(err?.message||err);contractFormStatus.className='web-status err'}finally{contractDeleteBtn.disabled=false}});
 
 
 
@@ -782,3 +824,5 @@ const portalShell=mountPortalShell(dashboardView,()=>currentProfile);
 </script>
 </body>
 </html>
+
+
