@@ -55,6 +55,31 @@ function artistReleaseDateValid(value){
     && calendarKey(date)==value
     && date >= (request.time-duration.value(3,'h')).date()+duration.value(14,'d');
 }
+// Band data stays in the same private contract document. Members are encoded as
+// name|DNI lines so every row can be validated without imposing a fixed count.
+// Authorization is a PDF (base64, at most 150 KiB), never a public file URL.
+function validBandData(r) {
+  return r.keys().hasOnly(['legal_name','artist_name','email','representative_dni','representative_role','band_members','authority_file_name','authority_file_data','authority_confirm','rights_confirm','third_party_confirm','fraud_confirm','contract_accept','electronic_signature','signature_date','signature_confirm'])
+    && validProfileName(r.artist_name)
+    && r.email is string && r.email.size() > 0 && r.email.size() <= 254
+    && r.representative_dni is string && r.representative_dni.matches('^[0-9]{7,9}$')
+    && r.representative_role in ['member','representative']
+    && r.band_members is string && r.band_members.size() > 0 && r.band_members.size() <= 40000
+    && r.band_members.matches('^[^|\n]{1,150}[|][0-9]{7,9}(\n[^|\n]{1,150}[|][0-9]{7,9})*$')
+    && (r.representative_role != 'member' || r.band_members.split('\n').hasAny([r.legal_name+'|'+r.representative_dni]))
+    && r.authority_confirm == 'Sí'
+    && r.authority_file_name is string && r.authority_file_name.size() <= 160
+    && r.authority_file_data is string && r.authority_file_data.size() <= 204800
+    && ((r.authority_file_data == '' && r.authority_file_name == '' && r.representative_role == 'member' && r.band_members.split('\n').size() == 1)
+      || (r.authority_file_name.size() > 0 && r.authority_file_data.matches('^JVBERi0[A-Za-z0-9+/=]*$')));
+}
+function signatureSubjectValid(c,r) {
+  return c.get('type','release_contract') == 'band_agreement'
+    ? (validBandData(r)
+      && c.pageContent.es is string && c.pageContent.es.size() > 0
+      && c.pageContent.en is string && c.pageContent.en.size() > 0)
+    : (r.release_date is string && artistReleaseDateValid(r.release_date));
+}
 function artistSignatureValid() {
   let c = resource.data;
   let d = request.resource.data;
@@ -79,7 +104,7 @@ function artistSignatureValid() {
     && d.releaseData is map && d.releaseData.legal_name == d.signature.legalName
     && d.releaseData.electronic_signature == d.signature.name
     && d.releaseData.signature_date == d.signedAt && d.releaseData.email == d.signature.contactEmail
-    && d.releaseData.release_date is string && artistReleaseDateValid(d.releaseData.release_date)
+    && signatureSubjectValid(c,d.releaseData)
     && d.releaseData.rights_confirm == 'Sí' && d.releaseData.third_party_confirm == 'Sí' && d.releaseData.fraud_confirm == 'Sí'
     && d.releaseData.contract_accept == 'Sí' && d.releaseData.signature_confirm == 'Sí';
 }

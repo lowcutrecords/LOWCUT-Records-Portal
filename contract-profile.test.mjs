@@ -7,8 +7,8 @@ const require=createRequire(process.env.LOWCUT_TEST_DEPS||import.meta.url);
 const {initializeTestEnvironment,assertFails,assertSucceeds}=require('@firebase/rules-unit-testing');
 const {doc,setDoc,getDoc,updateDoc,deleteDoc,getDocs,collection,query,where,writeBatch,serverTimestamp}=require('firebase/firestore');
 const common=`function signedIn(){return request.auth != null;} function myProfile(){return get(/databases/$(database)/documents/users/$(request.auth.uid));} function isActive(){return signedIn() && myProfile().data.active == true;} function isAdmin(){return isActive() && myProfile().data.role == 'admin';} function authorized(){return isActive() && request.auth.uid in resource.data.get('authorizedUids',[]);}`;
-const rules=`rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { ${common} ${fs.readFileSync(new URL('./contract-profile.rules.fragment',import.meta.url),'utf8')} } }`;
-const env=await initializeTestEnvironment({projectId:'demo-lowcut-contracts',firestore:{host:'127.0.0.1',port:8099,rules}});
+const rules=process.env.LOWCUT_RULES_FILE?fs.readFileSync(process.env.LOWCUT_RULES_FILE,'utf8'):`rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { ${common} ${fs.readFileSync(new URL('./contract-profile.rules.fragment',import.meta.url),'utf8')} } }`;
+const env=await initializeTestEnvironment({projectId:'demo-lowcut-contracts',firestore:{host:'127.0.0.1',port:Number(process.env.LOWCUT_EMULATOR_PORT||8099),rules}});
 const contract={title:'Release',status:'pending',active:true,artistId:'',artistIds:[],authorizedUids:[],invitationEmail:'new@example.com',pageRevision:1};
 const identity={uid:'new',email:'new@example.com',emailVerified:true};
 let checks=0;async function pass(action){await assertSucceeds(action);checks++;}async function fail(action){await assertFails(action);checks++;}
@@ -67,6 +67,26 @@ try{
   assert.equal((await getDoc(doc(admin,'contracts','invite'))).data().signature.name,'Legal Name');
   await fail(updateDoc(doc(admin,'contracts','invite'),{labelSignature:{...labelSignature,name:'Replacement'},updatedAt:serverTimestamp()}));
   await pass(updateDoc(doc(admin,'contracts','invite'),{active:false,updatedAt:serverTimestamp()}));
+  const bandData={legal_name:'Legal Name',artist_name:'Lack',email:'contact@example.com',electronic_signature:'Legal Name',signature_date:dateKey(),representative_dni:'12345678',representative_role:'member',band_members:'Legal Name|12345678\nSecond Member|23456789',authority_file_name:'authorization.pdf',authority_file_data:'JVBERi0xLjQK',authority_confirm:'Sí',contract_accept:'Sí',signature_confirm:'Sí',rights_confirm:'Sí',third_party_confirm:'Sí',fraud_confirm:'Sí'};
+  await pass(setDoc(doc(admin,'contracts','band'),{...contract,type:'band_agreement',artistId:'new',authorizedUids:['new'],pageContent:{es:'Accepted contract',en:'Accepted agreement'}}));
+  const bandSign={...sign,releaseData:bandData};
+  await fail(updateDoc(doc(wrong,'contracts','band'),bandSign));
+  await fail(getDoc(doc(wrong,'contracts','band')));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,type:'release_contract'}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,authority_file_data:'',authority_file_name:''}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,authority_file_data:'JVBERi0'+'A'.repeat(204800)}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,band_members:'Bad data'}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,band_members:'Legal Name|12345678\nSecond Member|invalid'}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,representative_dni:'99999999'}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,authority_confirm:'No'}}));
+  await fail(updateDoc(doc(db,'contracts','band'),{...bandSign,releaseData:{...bandData,role:'admin'}}));
+  await fail(updateDoc(doc(db,'contracts','second'),bandSign)); // Release contracts still need a real release date.
+  await pass(updateDoc(doc(db,'contracts','band'),bandSign));
+  const bandSaved=(await getDoc(doc(admin,'contracts','band'))).data();assert.equal(bandSaved.releaseData.band_members,bandData.band_members);assert.equal(bandSaved.releaseData.release_date,undefined);checks++;
+  await fail(updateDoc(doc(db,'contracts','band'),{releaseData:{...bandData,band_members:'Rewritten|12345678'}}));
+  await fail(updateDoc(doc(admin,'contracts','band'),{type:'release_contract'}));
+  await fail(updateDoc(doc(admin,'contracts','band'),{releaseData:{...bandData,authority_file_data:''}}));
+  await pass(updateDoc(doc(admin,'contracts','band'),{labelSignature,updatedAt:serverTimestamp()}));
   await pass(updateDoc(doc(admin,'users','new'),{active:false}));
   await fail(getDoc(doc(db,'contracts','second')));
   await fail(updateDoc(doc(db,'contracts','second'),sign));

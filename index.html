@@ -227,7 +227,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
         <div class="index" id="contractFormMode">NUEVO CONTRATO</div>
         <div class="contract-form-grid" style="margin-top:16px">
           <div class="field"><label>ID INTERNO (AUTOMÁTICO)</label><input id="contractId" readonly placeholder="closetoyouzanx"><div class="contract-id-note">Automático al crear. El ID se conserva al editar para mantener los enlaces.</div></div>
-          <div class="field"><label>TÍTULO / LANZAMIENTO *</label><input id="contractTitle" required placeholder="CLOSE TO YOU"></div>
+          <div class="field"><label>TÍTULO DEL CONTRATO *</label><input id="contractTitle" required placeholder="Acuerdo de Lack / título del lanzamiento"></div>
           <div class="field"><label>ARTISTA / PERFIL EXISTENTE</label><select id="contractArtist"><option value="">Seleccionar artista</option></select></div>
           <div class="field"><label for="contractInviteEmail">EMAIL DE INVITACIÓN</label><input id="contractInviteEmail" type="email" autocomplete="email" placeholder="artista@ejemplo.com"><div class="help">Para un artista nuevo, dejá el perfil sin seleccionar e ingresá su email. Se creará su perfil al registrarse.</div></div>
           <div class="field"><label for="contractActive">DISPONIBILIDAD</label><select id="contractActive"><option value="true">HABILITADO</option><option value="false">DESACTIVADO</option></select></div>
@@ -235,7 +235,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
           <div class="field full"><label for="contractPageEn">TEXTO DE LA PÁGINA · INGLÉS</label><textarea id="contractPageEn" rows="12" maxlength="40000"></textarea></div>
           <div class="field"><label>ESTADO *</label><select id="contractStatus" required><option value="pending">PENDIENTE</option><option value="signed">FIRMADO</option></select></div>
           <div class="field"><label>FECHA DE FIRMA</label><input id="contractSignedAt" type="date"></div>
-          <div class="field"><label>TIPO</label><input id="contractType" placeholder="release_contract" value="release_contract"></div>
+          <div class="field"><label for="contractType">TIPO DE CONTRATO</label><select id="contractType"><option value="release_contract">POR LANZAMIENTO</option><option value="band_agreement">ACUERDO DE BANDA / EXCLUSIVIDAD</option></select><div id="contractTypeHelp" class="help">Pide los datos de un lanzamiento.</div></div>
           <div class="field full"><label>URL DEL CONTRATO / FIRMA</label><input id="contractUrl" type="url" placeholder="https://..."><div class="web-help">Podés elegir un PDF del repo o pegar un enlace de firma.</div></div>
         </div>
 
@@ -280,7 +280,7 @@ button,input,a{font:inherit}.hidden{display:none!important}.mono{font-family:"Co
 </div>
 <script type="module">
 import './signup-entry.mjs';
-import { buildContract, available, signatureUrl, disposableTestContract } from './contract-model.mjs?v=20261110-testcleanup1';
+import { buildContract, available, signatureUrl, disposableTestContract } from './contract-model.mjs?v=20261112-contracttypes1';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 import {mountPortalShell} from './portal-shell.mjs';
@@ -740,11 +740,19 @@ function renderContractAdminList(){
   contractAdminList.querySelectorAll('[data-contract-edit]').forEach(b=>b.addEventListener('click',()=>openContractEditor(cachedContracts[Number(b.dataset.contractEdit)])));
 }
 function resetContractForm(){
-  contractDraftId='';contractSourceId='';$('contractVersionBtn').classList.add('hidden');contractAdminForm.reset();$('contractOriginalId').value='';$('contractId').value='';$('contractType').value='release_contract';$('contractStatus').value='pending';$('contractActive').value='true';$('contractFormMode').textContent='NUEVO CONTRATO';contractDeleteBtn.textContent='ELIMINAR CONTRATO';contractDeleteBtn.classList.add('hidden');contractFormStatus.textContent='';contractFormStatus.className='web-status';populateContractArtists();if(contractPdfFiles.length)renderContractPdfs();
+  $('contractType').querySelectorAll('[data-legacy]').forEach(el=>el.remove());
+  contractDraftId='';contractSourceId='';$('contractVersionBtn').classList.add('hidden');contractAdminForm.reset();$('contractOriginalId').value='';$('contractId').value='';$('contractType').value='release_contract';updateContractTypeHelp();$('contractStatus').value='pending';$('contractActive').value='true';$('contractFormMode').textContent='NUEVO CONTRATO';contractDeleteBtn.textContent='ELIMINAR CONTRATO';contractDeleteBtn.classList.add('hidden');contractFormStatus.textContent='';contractFormStatus.className='web-status';populateContractArtists();if(contractPdfFiles.length)renderContractPdfs();
 }
+function updateContractTypeHelp(){
+  const band=$('contractType').value==='band_agreement';
+  $('contractTypeHelp').textContent=band?'Pide integrantes, representante y autorización. No exige datos de canciones. Completá ambos idiomas del acuerdo.':'Pide los datos de un lanzamiento. Ambos textos vacíos usan el contrato original.';
+  $('contractPageEs').required=band;$('contractPageEn').required=band;
+}
+$('contractType').addEventListener('change',updateContractTypeHelp);
 function openContractCreator(){resetContractForm();contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});}
 function openContractEditor(c){
-  resetContractForm();$('contractVersionBtn').classList.remove('hidden');$('contractOriginalId').value=c.legacyPlaceholder?'':c.id;if(c.legacyPlaceholder)contractDraftId=c.id;$('contractTitle').value=c.title||'';const aid=Array.isArray(c.artistIds)?c.artistIds[0]:(c.artistId||'');populateContractArtists(aid);$('contractId').value=c.id;$('contractInviteEmail').value=c.invitationEmail||'';$('contractActive').value=available(c)?'true':'false';$('contractPageEs').value=c.pageContent?.es||'';$('contractPageEn').value=c.pageContent?.en||'';$('contractStatus').value=['signed','pending'].includes(String(c.status||'').toLowerCase())?String(c.status).toLowerCase():(String(c.status||'').toLowerCase()==='pending-signature'?'pending':'pending');$('contractSignedAt').value=(c.signedAt||c.signatureDate||'').match(/^\d{4}-\d{2}-\d{2}$/)?(c.signedAt||c.signatureDate):'';$('contractType').value=c.type||'release_contract';$('contractUrl').value=c.contractUrl||'';$('contractFormMode').textContent='EDITAR / '+(c.title||c.id);contractDeleteBtn.classList.toggle('hidden',c.status==='signed'&&!disposableTestContract(c));contractDeleteBtn.textContent=disposableTestContract(c)?'ELIMINAR CONTRATO DE PRUEBA':'ELIMINAR CONTRATO';contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');if(contractPdfFiles.length)renderContractPdfs();contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});
+  resetContractForm();$('contractVersionBtn').classList.remove('hidden');$('contractOriginalId').value=c.legacyPlaceholder?'':c.id;if(c.legacyPlaceholder)contractDraftId=c.id;$('contractTitle').value=c.title||'';const aid=Array.isArray(c.artistIds)?c.artistIds[0]:(c.artistId||'');populateContractArtists(aid);$('contractId').value=c.id;$('contractInviteEmail').value=c.invitationEmail||'';$('contractActive').value=available(c)?'true':'false';$('contractPageEs').value=c.pageContent?.es||'';$('contractPageEn').value=c.pageContent?.en||'';$('contractStatus').value=['signed','pending'].includes(String(c.status||'').toLowerCase())?String(c.status).toLowerCase():(String(c.status||'').toLowerCase()==='pending-signature'?'pending':'pending');$('contractSignedAt').value=(c.signedAt||c.signatureDate||'').match(/^\d{4}-\d{2}-\d{2}$/)?(c.signedAt||c.signatureDate):'';if(c.type&&!['release_contract','band_agreement'].includes(c.type)){const legacy=document.createElement('option');legacy.value=c.type;legacy.textContent='TIPO EXISTENTE · '+c.type;legacy.dataset.legacy='true';$('contractType').append(legacy);}
+  $('contractType').value=c.type||'release_contract';updateContractTypeHelp();$('contractUrl').value=c.contractUrl||'';$('contractFormMode').textContent='EDITAR / '+(c.title||c.id);contractDeleteBtn.classList.toggle('hidden',c.status==='signed'&&!disposableTestContract(c));contractDeleteBtn.textContent=disposableTestContract(c)?'ELIMINAR CONTRATO DE PRUEBA':'ELIMINAR CONTRATO';contractListPanel.classList.add('hidden');contractFormPanel.classList.remove('hidden');if(contractPdfFiles.length)renderContractPdfs();contractFormPanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function updateContractAutoId(){if(!$('contractOriginalId').value)$('contractId').value=contractDraftId||contractIdFromValues($('contractTitle').value,$('contractArtist').value||$('contractInviteEmail').value)}
 $('contractInviteEmail').addEventListener('input',updateContractAutoId);

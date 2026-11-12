@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {buildContract} from './contract-model.mjs';
+const input={title:'Lack',invitationEmail:'test@example.com',status:'pending',type:'band_agreement',pageEs:'Acuerdo',pageEn:'Agreement'};
+test('type changes invalidate a pending revision and clear incompatible draft data',()=>{const c=buildContract({type:'release_contract',pageRevision:4,draftData:{release_date:'2030-01-01'},pageContent:{es:'Acuerdo',en:'Agreement'}},input,'test');assert.equal(c.pageRevision,5);assert.deepEqual(c.draftData,{});assert.equal(c.type,'band_agreement');});
+test('band contracts require both texts; signed type and data cannot be rewritten',()=>{assert.throws(()=>buildContract({}, {...input,pageEs:'',pageEn:''},'test'),/texto completo/);const c=buildContract({},input,'test');assert.throws(()=>buildContract({...c,status:'signed',signedAt:'2026-11-12'},{...input,type:'release_contract',status:'signed',signedAt:'2026-11-12'},'test'),/conserva/);});
+test('legacy release contracts still work and existing other types are preserved',()=>{assert.equal(buildContract({}, {...input,type:'release_contract',pageEs:'',pageEn:''},'test').type,'release_contract');assert.equal(buildContract({type:'legacy_type'}, {...input,type:'legacy_type',pageEs:'',pageEn:''},'test').type,'legacy_type');assert.throws(()=>buildContract({}, {...input,type:'unknown'},'test'));});

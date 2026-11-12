@@ -1,5 +1,20 @@
 # Gestión de contratos individuales
 
+## Tipos de contrato
+
+- **Por lanzamiento** (`release_contract`, también el comportamiento de registros antiguos sin tipo): conserva formulario, anexo y validación de fecha de publicación a 14 días.
+- **Acuerdo de banda / exclusividad** (`band_agreement`): requiere texto completo ES/EN; pide nombre legal y DNI del firmante, carácter de integrante o representante, correo y una lista variable de integrantes con nombre y DNI. No pide canción, productores, género ni fecha de lanzamiento. Los porcentajes y vigencia se definen en el texto, sin valores de Lack insertados automáticamente.
+- Se admite autorización firmada en PDF de hasta 150 KiB, obligatoria cuando se representa a otras personas. Se conserva en el mismo documento privado del contrato, con los mismos permisos de acceso, sin crear URLs públicas. El aviso de email no envía el PDF ni los DNI de integrantes.
+- Los integrantes se guardan como líneas `nombre|DNI` en `releaseData.band_members`; permite validar cada línea en reglas sin limitar el número de integrantes a una cantidad fija. Rige un límite general de 40.000 caracteres. Los campos y el PDF también pueden guardarse como borrador; la declaración de autorización debe confirmarse personalmente al firmar.
+- El PDF es evidencia aportada por el firmante. Su carga no comprueba por sí misma la autenticidad de las firmas ni las facultades del representante: el sello debe revisar la autorización antes de aceptar.
+- Cambiar el tipo de un pendiente aumenta su revisión y limpia datos de borrador incompatibles. Un contrato firmado conserva su tipo, texto, integrantes, PDF y firmas; requiere nueva versión para cambios.
+
+### Activación del nuevo tipo
+
+Revisar e integrar primero las funciones `validBandData` y `signatureSubjectValid` del fragmento de reglas, y la llamada correspondiente en `artistSignatureValid`. Sin ese cambio, las reglas anteriores rechazan la firma de acuerdos sin fecha de lanzamiento. Después publicar el template y finalmente el portal con el selector. No se requiere Cloud Functions, Storage ni migración de contratos existentes.
+
+Las reglas son una propuesta de permisos validada en emulador. Deben compararse con las reglas efectivamente publicadas antes de integrarlas; el fragmento no reemplaza las reglas de otras colecciones.
+
 Implementación coordinada con `lowcutrecords/LOWCUT-Contratos-Template`.
 
 - Cada contrato tiene ID, enlace, artista o email invitado, estado (`pending`/`signed`) y disponibilidad (`active`) propios. Los documentos anteriores sin `active` se consideran habilitados.
